@@ -28,6 +28,7 @@ public class Ctt {
     public static final String DESC = " DESC ";
     public static final String ASC = " ASC ";
     public static final String DISTINCT = " DISTINCT";
+    public static final String LIMIT = " LIMIT ";
 
     public static final String TAG = "DATA_ACCESS";
 }

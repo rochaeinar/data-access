@@ -11,6 +11,8 @@ public class Options {
 
 
     private String orderBy;
+    private String limit;
+    private String select;
     private boolean ascending;
     private boolean distinct;
     private String count;
@@ -114,11 +116,23 @@ public class Options {
     }
 
     public void select(String... fields) {
+        if (fields.length > 0) {
+            select = TextUtils.join(",", fields);
+        }
+    }
 
+    public String getSelect() {
+        return select;
     }
 
     public void limit(int limit) {
-
+        this.limit = limit + "";
     }
 
+    public String getLimit() {
+        String res = "";
+        if (!Util.isNullOrEmpty(limit))
+            res = Ctt.LIMIT + limit;
+        return res;
+    }
 }

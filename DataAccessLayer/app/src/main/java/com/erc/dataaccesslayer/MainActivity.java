@@ -34,7 +34,6 @@ public class MainActivity extends ActionBarActivity {
         t.remove(5);
 
         Options options = new Options();
-        options.and("description2", "this is a test");
         options.and("description", "this is a test");
         options.and("code", "A");
         options.and("id", "123");

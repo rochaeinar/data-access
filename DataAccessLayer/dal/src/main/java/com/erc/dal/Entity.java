@@ -24,13 +24,18 @@ public abstract class Entity {
         Options options_ = options.length == 0 ? new Options() : options[0];
         options_.setEntity(this);
         StringBuffer sb = new StringBuffer();
-        sb.append(QueryBuilder.getAllQuery(this.getClass(), options_.getDistinct()));
+        String selectAll = QueryBuilder.getAllQuery(this.getClass(), options_.getDistinct());
+        if (!Util.isNullOrEmpty(options_.getSelect())) {
+            selectAll = selectAll.replace("*", options_.getSelect());
+        }
+        sb.append(selectAll);
         String expresions = options_.getExpressions();
         if (expresions.length() > 0) {
             sb.append(Ctt.WHERE);
             sb.append(expresions);
         }
         sb.append(options_.getOrderBy());
+        sb.append(options_.getLimit());
         sb.append(Ctt.SEMICOLON);
         exec(sb.toString());
         return new ArrayList<Entity>();

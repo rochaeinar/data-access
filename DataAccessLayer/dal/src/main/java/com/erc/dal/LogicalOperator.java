@@ -9,7 +9,7 @@ public class LogicalOperator {
 
     private String operator;
 
-    public LogicalOperator(String operator) {
+    private LogicalOperator(String operator) {
         this.operator = operator;
     }
 

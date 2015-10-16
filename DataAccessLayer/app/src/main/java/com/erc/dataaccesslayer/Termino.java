@@ -1,5 +1,7 @@
 package com.erc.dataaccesslayer;
 
+import android.content.Context;
+
 import com.erc.dal.Entity;
 import com.erc.dal.Field;
 import com.erc.dal.PrimaryKey;
@@ -20,4 +22,7 @@ public class Termino extends Entity {
     @Field
     public int language;
 
+    public Termino(Context context) {
+        super(context);
+    }
 }

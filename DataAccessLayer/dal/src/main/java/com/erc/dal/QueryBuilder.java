@@ -192,7 +192,7 @@ public class QueryBuilder {
         return res;
     }
 
-    public static String getQuery(Class entity, int id) {
+    public static String getQuery(Class entity, long id) {
         StringBuffer sb = new StringBuffer();
         try {
             sb.append(Ctt.SELECT_FROM);

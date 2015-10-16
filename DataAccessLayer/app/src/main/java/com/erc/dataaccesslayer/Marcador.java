@@ -1,5 +1,7 @@
 package com.erc.dataaccesslayer;
 
+import android.content.Context;
+
 import com.erc.dal.Entity;
 import com.erc.dal.Field;
 import com.erc.dal.PrimaryKey;
@@ -41,7 +43,8 @@ public class Marcador extends Entity {
     public float myFloat;
 
 
-    public Marcador() {
+    public Marcador(Context context) {
+        super(context);
         date = new Date();
         status = true;
         code = 'A';

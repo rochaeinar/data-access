@@ -10,9 +10,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DBManager extends SQLiteOpenHelper {
 
     private Context context;
-    Upgradeable upgradeable;
+    private Upgradeable upgradeable;
+    private static DBManager dbManager;
 
-    public DBManager(Context context) {
+
+    private DBManager(Context context) {
         super(context, "test.db", null, 1);
         this.context = context;
     }
@@ -29,6 +31,13 @@ public class DBManager extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         upgradeable.onUpgrade(db, oldVersion, newVersion);
+    }
+
+    public static DBManager getInstance(Context context) {
+        if (dbManager == null) {
+            dbManager = new DBManager(context);
+        }
+        return dbManager;
     }
 
     public void setOnUpgradeListener(Upgradeable upgradeable) {

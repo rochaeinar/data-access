@@ -10,7 +10,7 @@ public class ExpresionOperator {
 
     private String operator;
 
-    public ExpresionOperator(String operator) {
+    private ExpresionOperator(String operator) {
         this.operator = operator;
     }
 

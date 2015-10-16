@@ -1,12 +1,10 @@
 package com.erc.dataaccesslayer;
 
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.erc.dal.DBManager;
 import com.erc.dal.ExpresionOperator;
 import com.erc.dal.Options;
 
@@ -21,17 +19,11 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        DBManager dbManager = new DBManager(getApplicationContext());
-        SQLiteDatabase sqLiteDatabase = dbManager.getReadableDatabase();
-
-        Marcador t = new Marcador();
-        //t.description = "My description";
-        //DALHelper.getFields(e);
-        //DALHelper.findSubClasses(getApplicationContext(), Table.class);
+        Marcador t = new Marcador(getApplicationContext());
+        t.save();
+        t.save();
+        t.get(1445006285274L);
         t.getAll();
-        t.get(5);
-        t.save();
-        t.save();
         t.remove(5);
 
         Options options = new Options();
@@ -49,7 +41,7 @@ public class MainActivity extends ActionBarActivity {
         options.count();
 
         t.getAll(options);
-        t.exec("select * from fsdgsdf where asdfgsdfg sdfg sdfg");
+        t.execSQL("select * from fsdgsdf where asdfgsdfg sdfg sdfg");
 
     }
 

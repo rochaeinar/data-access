@@ -1,5 +1,6 @@
 package com.erc.dataaccesslayer;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -20,8 +21,8 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        DBManager dbManager = new DBManager(getApplicationContext(), "testDB");
-        dbManager.createDataBasse();
+        DBManager dbManager = new DBManager(getApplicationContext());
+        SQLiteDatabase sqLiteDatabase = dbManager.getReadableDatabase();
 
         Marcador t = new Marcador();
         //t.description = "My description";
@@ -41,9 +42,11 @@ public class MainActivity extends ActionBarActivity {
         options.or("description", "%escrip%", ExpresionOperator.like());
         options.orderBy("id", true);
         options.distinct(true);
-        options.in("code", new ArrayList(Arrays.asList(5,6)));
-        options.select("code","id");
+        options.in("code", new ArrayList(Arrays.asList(5, 6)));
+        options.select("code", "id");
         options.limit(5);
+        options.avg("code");
+        options.count();
 
         t.getAll(options);
         t.exec("select * from fsdgsdf where asdfgsdfg sdfg sdfg");

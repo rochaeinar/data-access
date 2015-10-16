@@ -182,13 +182,10 @@ public class QueryBuilder {
         return sb.toString();
     }
 
-    public static String getAllQuery(Class entity, boolean distinct) {
+    public static String getAllQuery(Class entity) {
         String res = "";
         try {
             res = Ctt.SELECT_FROM.replaceFirst("%t", geTableName(entity));
-            if (distinct) {
-                res = res.replace(Ctt.SELECT, Ctt.SELECT + Ctt.DISTINCT);
-            }
         } catch (Exception e) {
             Log.e("Error getAllQuery()", e);
         }

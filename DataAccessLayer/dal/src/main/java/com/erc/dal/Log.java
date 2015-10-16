@@ -14,7 +14,7 @@ public class Log {
     }
 
     public static void w(String message) {
-        android.util.Log.e(Ctt.TAG, message);
+        android.util.Log.w(Ctt.TAG, message);
     }
 
     public static void i(String message) {

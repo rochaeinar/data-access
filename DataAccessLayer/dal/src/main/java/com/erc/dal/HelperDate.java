@@ -12,12 +12,14 @@ public class HelperDate {
 
     public static Date getDateFromFormat(String dateInFormat, String format) {
 
-        try {
-            DateFormat df1 = new SimpleDateFormat(format);
-            Date result1 = df1.parse(dateInFormat);
-            return result1;
-        } catch (Exception e) {
-            Log.e("Error on getDateFromFormat", e);
+        if (!Util.isNullOrEmpty(dateInFormat)) {
+            try {
+                DateFormat df1 = new SimpleDateFormat(format);
+                Date result1 = df1.parse(dateInFormat);
+                return result1;
+            } catch (Exception e) {
+                Log.e("Error on getDateFromFormat", e);
+            }
         }
         return null;
     }

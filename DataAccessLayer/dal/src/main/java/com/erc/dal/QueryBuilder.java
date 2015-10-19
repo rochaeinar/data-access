@@ -20,10 +20,11 @@ public class QueryBuilder {
             Field[] fields = entity.getClass().getDeclaredFields();
             for (Field field : fields) {
                 if (field.isAnnotationPresent(PrimaryKey.class)) {
+                    long id = generateId(entity);
                     if (field.getType().equals(String.class)) {
-                        field.set(entity, generateId() + "");
+                        field.set(entity, id + "");
                     } else {
-                        field.set(entity, System.currentTimeMillis());
+                        field.set(entity, id);
                     }
                 }
             }
@@ -32,8 +33,9 @@ public class QueryBuilder {
         }
     }
 
-    private static long generateId() {
-        return System.currentTimeMillis();
+    private static long generateId(Entity entity) {
+        String nameId = getPrimaryKey(entity).getName();
+        return entity.calculate(Aggregation.max(nameId)) + 1;
     }
 
     public static Pair getPrimaryKey(Entity entity) {
@@ -42,7 +44,7 @@ public class QueryBuilder {
             Field[] fields = entity.getClass().getDeclaredFields();
             for (Field field : fields) {
                 if (field.isAnnotationPresent(PrimaryKey.class)) {
-                    pair.setName(getName(field));
+                    pair.setName(ReflectionHelper.getDataBaseNameOfField(field));
                     pair.setType(field.getType());
                     pair.setValue(Util.getValueFromField(field, entity));
                     break;
@@ -60,7 +62,7 @@ public class QueryBuilder {
             Field[] fields = entity.getDeclaredFields();
             for (Field field : fields) {
                 if (field.isAnnotationPresent(PrimaryKey.class)) {
-                    pair.setName(getName(field));
+                    pair.setName(ReflectionHelper.getDataBaseNameOfField(field));
                     pair.setType(field.getType());
                     pair.setValue(id.toString());
                     break;
@@ -80,7 +82,7 @@ public class QueryBuilder {
                 Field[] allFields = entity.getClass().getDeclaredFields();
                 for (Field field : allFields) {
                     if (field.isAnnotationPresent(com.erc.dal.Field.class)) {
-                        fields.add(getName(field));
+                        fields.add(ReflectionHelper.getDataBaseNameOfField(field));
                         if (HelperDataType.hasCuotes(field.getType())) {
                             values.add(Ctt.VALUE_QUOTES.replaceFirst(Ctt.VALUE, Util.getValueFromField(field, entity)));
                         } else {
@@ -103,7 +105,7 @@ public class QueryBuilder {
             Field[] allFields = entity.getClass().getDeclaredFields();
             for (Field field : allFields) {
                 if (field.isAnnotationPresent(com.erc.dal.Field.class)) {
-                    String name = getName(field);
+                    String name = ReflectionHelper.getDataBaseNameOfField(field);
                     if (HelperDataType.hasCuotes(field.getType())) {
                         pairs.add(Ctt.PAIR_QUOTE.replaceFirst(Ctt.FIELD, name).
                                 replaceFirst(Ctt.VALUE, Util.getValueFromField(field, entity)));
@@ -125,7 +127,7 @@ public class QueryBuilder {
             Field[] allFields = entity.getDeclaredFields();
             for (Field field : allFields) {
                 if (field.isAnnotationPresent(com.erc.dal.Field.class)) {
-                    pairs.add(getName(field) + " " + HelperDataType.getDataBaseType(field.getType()));
+                    pairs.add(ReflectionHelper.getDataBaseNameOfField(field) + " " + HelperDataType.getDataBaseType(field.getType()));
                 }
             }
         } catch (Exception e) {
@@ -243,19 +245,5 @@ public class QueryBuilder {
         return sb.toString().replaceAll(Ctt.TABLE, table);
     }
 
-    private static String getName(Field field) {
-        String res = "";
-        com.erc.dal.Field key = (com.erc.dal.Field) field.getAnnotation(com.erc.dal.Field.class);
-        if (key.name() == null) {
-            res = field.getName();
-        } else {
-            if (key.name().isEmpty()) {
-                res = field.getName();
-            } else {
-                res = key.name();
-            }
-        }
-        return res;
-    }
 
 }

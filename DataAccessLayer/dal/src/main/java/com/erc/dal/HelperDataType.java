@@ -48,7 +48,7 @@ public class HelperDataType {
                 res = REAL;
                 break;
             }
-
+            break;
         }
         while (false);
         return res;

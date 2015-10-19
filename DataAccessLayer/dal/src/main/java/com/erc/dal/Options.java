@@ -13,7 +13,6 @@ public class Options {
     private String orderBy;
     private String limit;
     private String select;
-    private Aggregation aggregation;
     private boolean ascending;
     private boolean distinct;
     private String count;
@@ -79,32 +78,7 @@ public class Options {
         this.limit = limit + "";
     }
 
-    public void avg(String field) {
-        clearForAggregation();
-        aggregation = new Aggregation(field, Aggregation.AVG);
-    }
-
-    public void sum(String field) {
-        clearForAggregation();
-        aggregation = new Aggregation(field, Aggregation.SUM);
-    }
-
-    public void max(String field) {
-        clearForAggregation();
-        aggregation = new Aggregation(field, Aggregation.MAX);
-    }
-
-    public void min(String field) {
-        clearForAggregation();
-        aggregation = new Aggregation(field, Aggregation.MIN);
-    }
-
-    public void count() {
-        clearForAggregation();
-        aggregation = new Aggregation("*", Aggregation.COUNT);
-    }
-
-    public String getSql(Entity entity, String selectAllSQL) {
+    public String getSql(Entity entity, String selectAllSQL, Aggregation... aggregation) {
         this.entity = entity;
         tableName = QueryBuilder.geTableName(entity.getClass());
 
@@ -116,8 +90,14 @@ public class Options {
         if (!Util.isNullOrEmpty(getSelect())) {
             selectAllSQL = selectAllSQL.replace("*", getSelect());
         }
-        if (!Util.isNullOrEmpty(getAggregation())) {
-            selectAllSQL = selectAllSQL.replace("*", getAggregation());
+
+        if (aggregation.length > 0) {
+            Aggregation aggregation_ = aggregation[0];
+            clearForAggregation();
+            String aggregationText = aggregation_.toString(entity);
+            if (!Util.isNullOrEmpty(aggregationText)) {
+                selectAllSQL = selectAllSQL.replace("*", aggregationText);
+            }
         }
         sb.append(selectAllSQL);
         String expresions = getExpressions();
@@ -180,25 +160,6 @@ public class Options {
         return select;
     }
 
-    private String getAggregation() {
-        String res = "";
-        if (aggregation != null) {
-            if (entity != null) {
-                try {
-                    if (!aggregation.getField().equals("*")) {
-                        java.lang.reflect.Field field = entity.getClass().getField(aggregation.getField());
-                    }
-                    res = aggregation.getOperator().replace(Ctt.VALUE, aggregation.getField());
-                } catch (NoSuchFieldException e) {
-                    Log.e("null field: " + aggregation.getField(), e);
-                }
-            } else {
-                Log.w("null entity on getAggregation");
-            }
-        }
-        return res;
-    }
-
     private void clearForAggregation() {
         if (!Util.isNullOrEmpty(select)) {
             Log.w("Fields to select '" + select + "' will be ignored... in order to use aggregation operator");
@@ -208,9 +169,6 @@ public class Options {
         }
         select = null;
         distinct = false;
-
-        if (aggregation != null) {
-            Log.w("Previous aggregation operator '" + aggregation.getOperator().replace(Ctt.VALUE, aggregation.getField()) + "' will be ignored");
-        }
     }
+
 }

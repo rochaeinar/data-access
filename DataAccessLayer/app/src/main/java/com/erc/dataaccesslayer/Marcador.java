@@ -45,9 +45,24 @@ public class Marcador extends Entity {
 
     public Marcador(Context context) {
         super(context);
-        date = new Date();
+        /*date = new Date();
         status = true;
         code = 'A';
-        description = "This is a test";
+        description = "This is a test";*/
+    }
+
+    @Override
+    public String toString() {
+        return "Marcador{" +
+                "id=" + id +
+                ", description='" + description + '\'' +
+                ", code=" + code +
+                ", language=" + language +
+                ", status=" + status +
+                ", date=" + date +
+                ", myShort=" + myShort +
+                ", myDouble=" + myDouble +
+                ", myFloat=" + myFloat +
+                '}';
     }
 }

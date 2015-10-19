@@ -5,7 +5,10 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.erc.dal.Aggregation;
+import com.erc.dal.Entity;
 import com.erc.dal.ExpresionOperator;
+import com.erc.dal.Log;
 import com.erc.dal.Options;
 
 import java.util.ArrayList;
@@ -22,8 +25,10 @@ public class MainActivity extends ActionBarActivity {
         Marcador t = new Marcador(getApplicationContext());
         t.save();
         t.save();
-        t.get(1445006285274L);
-        t.getAll();
+        ArrayList<Entity> entities = t.getAll();
+        for (Entity entity : entities) {
+            Log.w(entity.toString());
+        }
         t.remove(5);
 
         Options options = new Options();
@@ -37,11 +42,9 @@ public class MainActivity extends ActionBarActivity {
         options.in("code", new ArrayList(Arrays.asList(5, 6)));
         options.select("code", "id");
         options.limit(5);
-        options.avg("code");
-        options.count();
-
         t.getAll(options);
-        t.execSQL("select * from fsdgsdf where asdfgsdfg sdfg sdfg");
+
+        Log.i("count: " + t.calculate(Aggregation.count()) + "");
 
     }
 

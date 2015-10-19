@@ -14,9 +14,29 @@ public class Aggregation {
     private String field;
     private String operator;
 
-    public Aggregation(String field, String operator) {
+    private Aggregation(String field, String operator) {
         this.field = field;
         this.operator = operator;
+    }
+
+    public static Aggregation avg(String field) {
+        return new Aggregation(field, Aggregation.AVG);
+    }
+
+    public static Aggregation sum(String field) {
+        return new Aggregation(field, Aggregation.SUM);
+    }
+
+    public static Aggregation max(String field) {
+        return new Aggregation(field, Aggregation.MAX);
+    }
+
+    public static Aggregation min(String field) {
+        return new Aggregation(field, Aggregation.MIN);
+    }
+
+    public static Aggregation count() {
+        return new Aggregation("*", Aggregation.COUNT);
     }
 
     public String getField() {
@@ -25,5 +45,23 @@ public class Aggregation {
 
     public String getOperator() {
         return operator;
+    }
+
+    public String toString(Entity entity) {
+        String res = "";
+        if (entity != null) {
+            try {
+                if (!getField().equals("*")) {
+                    String fieldName = ReflectionHelper.getFieldNameFromDBName(entity, getField());
+                    java.lang.reflect.Field field = entity.getClass().getField(fieldName);
+                }
+                res = getOperator().replace(Ctt.VALUE, getField());
+            } catch (NoSuchFieldException e) {
+                Log.e("null field: " + getField(), e);
+            }
+        } else {
+            Log.w("null entity on getAggregation");
+        }
+        return res;
     }
 }

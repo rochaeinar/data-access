@@ -26,14 +26,13 @@ public class MainActivity extends ActionBarActivity {
         t.date = new Date();
         t.save();
 
-        Marcador m2 = t.getById(2);
+        Marcador m2 = t.getById(1);
         Log.w(m2.toString());
 
         ArrayList<Marcador> entities = t.getAll();
         for (Marcador entity : entities) {
             Log.w(entity.toString());
         }
-        t.remove(1);
 
         Options options = new Options();
         options.and("description", "");

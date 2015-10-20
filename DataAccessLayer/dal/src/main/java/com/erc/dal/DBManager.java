@@ -18,6 +18,7 @@ public class DBManager extends SQLiteOpenHelper {
 
     private DBManager(DBConfig dbConfigs) {
         super(dbConfigs.getContext(), dbConfigs.getDataBaseName(), null, dbConfigs.getVersion());
+        this.context = dbConfigs.getContext();
     }
 
     @Override

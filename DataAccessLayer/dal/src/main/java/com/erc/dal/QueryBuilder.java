@@ -15,12 +15,12 @@ import dalvik.system.DexFile;
  */
 public class QueryBuilder {
 
-    public static void setID(Entity entity) {
+    public static void setID(Entity entity, DBConfig dbConfig) {
         try {
             Field[] fields = entity.getClass().getDeclaredFields();
             for (Field field : fields) {
                 if (field.isAnnotationPresent(PrimaryKey.class)) {
-                    long id = generateId(entity);
+                    long id = generateId(entity, dbConfig);
                     if (field.getType().equals(String.class)) {
                         field.set(entity, id + "");
                     } else {
@@ -33,7 +33,7 @@ public class QueryBuilder {
         }
     }
 
-    private static long generateId(Entity entity) {
+    private static long generateId(Entity entity, DBConfig dbConfig) {
         String nameId = getPrimaryKey(entity).getName();
         return entity.calculate(Aggregation.max(nameId)) + 1;
     }

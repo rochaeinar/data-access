@@ -50,10 +50,10 @@ public class ReflectionHelper {
         return res;
     }
 
-    public static String getFieldNameFromDBName(Entity entity, String fieldNameDB) {
+    public static String getFieldNameFromDBName(Class entityClass, String fieldNameDB) {
         String res = "";
         try {
-            java.lang.reflect.Field[] allFields = entity.getClass().getDeclaredFields();
+            java.lang.reflect.Field[] allFields = entityClass.getDeclaredFields();
             for (java.lang.reflect.Field field : allFields) {
                 if (field.isAnnotationPresent(com.erc.dal.Field.class)) {
                     if (getDataBaseNameOfField(field).equals(fieldNameDB)) {

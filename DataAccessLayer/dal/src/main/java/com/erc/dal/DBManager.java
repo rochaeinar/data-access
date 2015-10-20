@@ -14,17 +14,16 @@ public class DBManager extends SQLiteOpenHelper {
 
     private static Upgradeable upgradeable;
     private static DBManager dbManager;
-    private static DBConfig dbConfig;
+    private Context context;
 
     private DBManager(DBConfig dbConfigs) {
         super(dbConfigs.getContext(), dbConfigs.getDataBaseName(), null, dbConfigs.getVersion());
-        this.dbConfig = dbConfigs;
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
         Log.w("Database created");
-        String sql = QueryBuilder.getCreateQuery(dbConfig.getContext(), Table.class);
+        String sql = QueryBuilder.getCreateQuery(context, Table.class);
         for (String sqlCreate : sql.split(";")) {
             db.execSQL(sqlCreate);
         }

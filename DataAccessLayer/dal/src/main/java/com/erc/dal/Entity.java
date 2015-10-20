@@ -12,7 +12,7 @@ import java.util.Date;
 /**
  * Created by einar on 8/31/2015.
  */
-public abstract class Entity {
+public abstract class Entity<T> {
 
     private DBConfig dbConfig;
 
@@ -28,7 +28,7 @@ public abstract class Entity {
         String sql = "";
         Pair pair = QueryBuilder.getPrimaryKey(this);
         if (pair.getValue().toString().isEmpty() || pair.getValue().toString().equals("0")) {
-            QueryBuilder.setID(this);
+            QueryBuilder.setID(this, dbConfig);
             sql = QueryBuilder.getQueryInsert(this);
         } else {
             sql = QueryBuilder.getQueryUpdate(this);
@@ -37,18 +37,18 @@ public abstract class Entity {
         return this;
     }
 
-    public ArrayList<Entity> getAll(Options... options) {
-        ArrayList<Entity> entities = new ArrayList<>();
+    public ArrayList<T> getAll(Options... options) {
+        ArrayList<T> entities = new ArrayList<>();
         Options options_ = options.length == 0 ? new Options() : options[0];
         String selectAll = QueryBuilder.getAllQuery(this.getClass());
-        selectAll = options_.getSql(this, selectAll) + Ctt.SEMICOLON;
+        selectAll = options_.getSql(this.getClass(), selectAll) + Ctt.SEMICOLON;
         Cursor cursor = rawQuery(selectAll);
         while (cursor.moveToNext()) {
             try {
                 Object entity = ReflectionHelper.getInstance(this.getClass(), new Object[]{dbConfig.getContext()}, new Class[]{Context.class});
                 ArrayList<Field> fields = ReflectionHelper.getFields(entity);
                 fillFields(fields, cursor, entity);
-                entities.add((Entity) entity);
+                entities.add((T) entity);
             } catch (Exception e) {
                 Log.e("Fail to fill getAll", e);
             }
@@ -56,20 +56,20 @@ public abstract class Entity {
         return entities;
     }
 
-    public Entity get(long id) {
-        Object entity = null;
+    public <T> T getById(long id) {
+        T entity = null;
         String sql = QueryBuilder.getQuery(this.getClass(), id);
         Cursor cursor = rawQuery(sql);
         if (cursor.moveToNext()) {
             try {
-                entity = ReflectionHelper.getInstance(this.getClass(), new Object[]{dbConfig.getContext()}, new Class[]{Context.class});
+                entity = (T) ReflectionHelper.getInstance(this.getClass(), new Object[]{dbConfig.getContext()}, new Class[]{Context.class});
                 ArrayList<Field> fields = ReflectionHelper.getFields(entity);
                 fillFields(fields, cursor, entity);
             } catch (Exception e) {
-                Log.e("Fail to fill get", e);
+                Log.e("Fail to fill getById", e);
             }
         }
-        return (Entity) entity;
+        return entity;
     }
 
     public boolean remove(int id) {
@@ -82,7 +82,7 @@ public abstract class Entity {
         boolean res = false;
         try {
             db.execSQL(sql);
-            Log.i(sql);
+            //Log.i(sql);
             res = true;
         } catch (Exception e) {
             Log.e("Failed to execute SQL", e);
@@ -101,7 +101,7 @@ public abstract class Entity {
         Cursor cursor = null;
         try {
             cursor = db.rawQuery(sql, null);
-            Log.i(sql);
+            //Log.i(sql);
         } catch (Exception e) {
             Log.e("Failed to execute SQL", e);
         } /*finally {
@@ -121,7 +121,7 @@ public abstract class Entity {
             if (aggregationOperator != null) {
                 Options options_ = options.length == 0 ? new Options() : options[0];
                 String selectAll = QueryBuilder.getAllQuery(this.getClass());
-                selectAll = options_.getSql(this, selectAll, aggregationOperator) + Ctt.SEMICOLON;
+                selectAll = options_.getSql(this.getClass(), selectAll, aggregationOperator) + Ctt.SEMICOLON;
                 Cursor cursor = rawQuery(selectAll);
                 if (cursor.moveToNext()) {
                     res = cursor.getLong(0);

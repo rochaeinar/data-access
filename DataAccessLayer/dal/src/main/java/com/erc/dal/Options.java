@@ -19,7 +19,7 @@ public class Options {
     private String min;
     private String max;
     private ArrayList<Expresion> expresions;
-    private Entity entity;
+    private Class entityClass;
     String tableName;
 
 
@@ -27,19 +27,21 @@ public class Options {
         expresions = new ArrayList<Expresion>();
     }
 
-    public void and(String fieldName, String value, ExpresionOperator... expresionOperator) {
-        if (!Util.isNullOrEmpty(fieldName) && !Util.isNullOrEmpty(value)) {
+    public void and(String fieldName, Object value, ExpresionOperator... expresionOperator) {
+        String value_ = Util.getValueFromObject(value);
+        if (!Util.isNullOrEmpty(fieldName) && !Util.isNullOrEmpty(value_)) {
             ExpresionOperator expresionOperator_ = expresionOperator.length == 0 ? ExpresionOperator.equals() : expresionOperator[0];
-            expresions.add(new Expresion(fieldName, expresionOperator_, value, LogicalOperator.and()));
+            expresions.add(new Expresion(fieldName, expresionOperator_, value_, LogicalOperator.and()));
         } else {
             Log.w("Null or empty value on Options.and: " + fieldName + ", " + value);
         }
     }
 
-    public void or(String fieldName, String value, ExpresionOperator... expresionOperator) {
-        if (!Util.isNullOrEmpty(fieldName) && !Util.isNullOrEmpty(value)) {
+    public void or(String fieldName, Object value, ExpresionOperator... expresionOperator) {
+        String value_ = Util.getValueFromObject(value);
+        if (!Util.isNullOrEmpty(fieldName) && !Util.isNullOrEmpty(value_)) {
             ExpresionOperator expresionOperator_ = expresionOperator.length == 0 ? ExpresionOperator.equals() : expresionOperator[0];
-            expresions.add(new Expresion(fieldName, expresionOperator_, value, LogicalOperator.or()));
+            expresions.add(new Expresion(fieldName, expresionOperator_, value_, LogicalOperator.or()));
         } else {
             Log.w("Null or empty value on Options.or: " + fieldName + ", " + value);
         }
@@ -68,7 +70,8 @@ public class Options {
         }
     }
 
-    public void select(String... fields) {
+    @Deprecated
+    private void select(String... fields) {
         if (fields.length > 0) {
             select = TextUtils.join(",", fields);
         }
@@ -78,9 +81,9 @@ public class Options {
         this.limit = limit + "";
     }
 
-    public String getSql(Entity entity, String selectAllSQL, Aggregation... aggregation) {
-        this.entity = entity;
-        tableName = QueryBuilder.geTableName(entity.getClass());
+    public String getSql(Class entityClass, String selectAllSQL, Aggregation... aggregation) {
+        this.entityClass = entityClass;
+        tableName = QueryBuilder.geTableName(entityClass);
 
         StringBuffer sb = new StringBuffer();
 
@@ -94,7 +97,7 @@ public class Options {
         if (aggregation.length > 0) {
             Aggregation aggregation_ = aggregation[0];
             clearForAggregation();
-            String aggregationText = aggregation_.toString(entity);
+            String aggregationText = aggregation_.toString(entityClass);
             if (!Util.isNullOrEmpty(aggregationText)) {
                 selectAllSQL = selectAllSQL.replace("*", aggregationText);
             }
@@ -120,7 +123,7 @@ public class Options {
                     sb.append(e.getLogicalOperator());
                 }
                 try {
-                    Class type = entity.getClass().getField(e.getLeft()).getType();
+                    Class type = entityClass.getField(e.getLeft()).getType();
                     sb.append(e.getExpresionString(tableName, HelperDataType.hasCuotes(type)));
                     i++;
                 } catch (NoSuchFieldException e1) {

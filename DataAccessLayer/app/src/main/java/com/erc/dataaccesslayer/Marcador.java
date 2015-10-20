@@ -13,7 +13,7 @@ import java.util.Date;
  * Created by einar on 8/6/2015.
  */
 @Table(name = "Marcador")
-public class Marcador extends Entity {
+public class Marcador extends Entity<Marcador> {
     @PrimaryKey
     @Field(name = "ID")
     public long id;

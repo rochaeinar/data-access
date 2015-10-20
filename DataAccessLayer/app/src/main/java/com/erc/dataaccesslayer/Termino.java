@@ -25,4 +25,13 @@ public class Termino extends Entity {
     public Termino(Context context) {
         super(context);
     }
+
+    @Override
+    public String toString() {
+        return "Termino{" +
+                "id=" + id +
+                ", description='" + description + '\'' +
+                ", language=" + language +
+                '}';
+    }
 }

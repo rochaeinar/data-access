@@ -6,13 +6,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.erc.dal.Aggregation;
-import com.erc.dal.Entity;
 import com.erc.dal.ExpresionOperator;
 import com.erc.dal.Log;
 import com.erc.dal.Options;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -23,28 +23,41 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         Marcador t = new Marcador(getApplicationContext());
+        t.date = new Date();
         t.save();
-        t.save();
-        ArrayList<Entity> entities = t.getAll();
-        for (Entity entity : entities) {
+
+        Marcador m2 = t.getById(2);
+        Log.w(m2.toString());
+
+        ArrayList<Marcador> entities = t.getAll();
+        for (Marcador entity : entities) {
             Log.w(entity.toString());
         }
-        t.remove(5);
+        t.remove(1);
 
         Options options = new Options();
-        options.and("description", "this is a test");
-        options.and("code", "A");
-        options.and("id", "123");
-        options.or("id", "5");
-        options.or("description", "%escrip%", ExpresionOperator.like());
+        options.and("description", "");
+        options.and("code", "");
+        options.and("status", false);
+        options.and("date", null);
+        //options.and("description", "%escrip%", ExpresionOperator.like());
         options.orderBy("id", true);
         options.distinct(true);
-        options.in("code", new ArrayList(Arrays.asList(5, 6)));
-        options.select("code", "id");
+        options.in("id", new ArrayList(Arrays.asList(5, 30)));
         options.limit(5);
-        t.getAll(options);
+        entities = t.getAll(options);
+        for (Marcador entity : entities) {
+            Log.w(entity.toString());
+        }
 
         Log.i("count: " + t.calculate(Aggregation.count()) + "");
+
+        Termino termino = new Termino(getApplicationContext());
+        termino.save();
+        termino.description = "test";
+        termino.save();
+
+        Log.w(termino.getById(1).toString());
 
     }
 

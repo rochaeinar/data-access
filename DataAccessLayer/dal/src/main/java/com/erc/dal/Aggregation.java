@@ -47,20 +47,20 @@ public class Aggregation {
         return operator;
     }
 
-    public String toString(Entity entity) {
+    public String toString(Class entityClass) {
         String res = "";
-        if (entity != null) {
+        if (entityClass != null) {
             try {
                 if (!getField().equals("*")) {
-                    String fieldName = ReflectionHelper.getFieldNameFromDBName(entity, getField());
-                    java.lang.reflect.Field field = entity.getClass().getField(fieldName);
+                    String fieldName = ReflectionHelper.getFieldNameFromDBName(entityClass, getField());
+                    java.lang.reflect.Field field = entityClass.getField(fieldName);
                 }
                 res = getOperator().replace(Ctt.VALUE, getField());
             } catch (NoSuchFieldException e) {
                 Log.e("null field: " + getField(), e);
             }
         } else {
-            Log.w("null entity on getAggregation");
+            Log.w("null entityClass on getAggregation");
         }
         return res;
     }

@@ -13,7 +13,7 @@ import java.util.Date;
  * Created by einar on 8/6/2015.
  */
 @Table(name = "Marcador")
-public class Marcador extends Entity<Marcador> {
+public class Marcador extends Entity{
     @PrimaryKey
     @Field(name = "ID")
     public long id;
@@ -43,12 +43,12 @@ public class Marcador extends Entity<Marcador> {
     public float myFloat;
 
 
-    public Marcador(Context context) {
-        super(context);
-        /*date = new Date();
+    public Marcador() {
+        super();
+        date = new Date();
         status = true;
         code = 'A';
-        description = "This is a test";*/
+        description = "This is a test";
     }
 
     @Override

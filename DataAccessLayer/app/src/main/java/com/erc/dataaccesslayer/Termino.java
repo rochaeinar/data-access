@@ -22,8 +22,8 @@ public class Termino extends Entity {
     @Field
     public int language;
 
-    public Termino(Context context) {
-        super(context);
+    public Termino() {
+        super();
     }
 
     @Override

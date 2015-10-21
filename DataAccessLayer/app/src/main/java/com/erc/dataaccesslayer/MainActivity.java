@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.erc.dal.Aggregation;
+import com.erc.dal.DB;
 import com.erc.dal.ExpresionOperator;
 import com.erc.dal.Log;
 import com.erc.dal.Options;
@@ -22,14 +23,15 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Marcador t = new Marcador(getApplicationContext());
-        t.date = new Date();
-        t.save();
+        DB db = new DB(getApplicationContext());
 
-        Marcador m2 = t.getById(1);
+        Marcador t = new Marcador();
+        db.save(t);
+
+        Marcador m2 = db.getById(Marcador.class, 1);
         Log.w(m2.toString());
 
-        ArrayList<Marcador> entities = t.getAll();
+        ArrayList<Marcador> entities = db.getAll(Marcador.class);
         for (Marcador entity : entities) {
             Log.w(entity.toString());
         }
@@ -39,24 +41,23 @@ public class MainActivity extends ActionBarActivity {
         options.and("code", "");
         options.and("status", false);
         options.and("date", null);
-        //options.and("description", "%escrip%", ExpresionOperator.like());
         options.orderBy("id", true);
         options.distinct(true);
         options.in("id", new ArrayList(Arrays.asList(5, 30)));
         options.limit(5);
-        entities = t.getAll(options);
+        entities = db.getAll(Marcador.class, options);
         for (Marcador entity : entities) {
             Log.w(entity.toString());
         }
 
-        Log.i("count: " + t.calculate(Aggregation.count()) + "");
+        Log.i("count: " + db.calculate(Marcador.class, Aggregation.count()) + "");
 
-        Termino termino = new Termino(getApplicationContext());
-        termino.save();
+        Termino termino = new Termino();
+        db.save(termino);
         termino.description = "test";
-        termino.save();
+        db.save(termino);
 
-        Log.w(termino.getById(1).toString());
+        Log.w(db.getById(Termino.class, 1).toString());
 
     }
 

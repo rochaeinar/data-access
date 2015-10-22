@@ -39,16 +39,22 @@ public class QueryBuilder {
     }
 
     public static Pair getPrimaryKey(Entity entity) {
-        Pair pair = new Pair();
+        boolean existPrimaryKey = false;
+        Pair pair = null;
         try {
             Field[] fields = entity.getClass().getDeclaredFields();
             for (Field field : fields) {
                 if (field.isAnnotationPresent(PrimaryKey.class)) {
+                    pair = new Pair();
                     pair.setName(ReflectionHelper.getDataBaseNameOfField(field));
                     pair.setType(field.getType());
                     pair.setValue(Util.getValueFromField(field, entity));
+                    existPrimaryKey = true;
                     break;
                 }
+            }
+            if (!existPrimaryKey) {
+                Log.e("No Primary Key defined, please add an annotation '@PrimaryKey' on one field inside :" + entity.getClass().getName(), null);
             }
         } catch (Exception e) {
             Log.e("Error: getPrimaryKey", e);
@@ -56,17 +62,23 @@ public class QueryBuilder {
         return pair;
     }
 
-    public static Pair getPrimaryKey(Class entity, Object id) {
-        Pair pair = new Pair();
+    public static Pair getPrimaryKey(Class classType, Object id) {
+        Pair pair = null;
+        boolean existPrimaryKey = false;
         try {
-            Field[] fields = entity.getDeclaredFields();
+            Field[] fields = classType.getDeclaredFields();
             for (Field field : fields) {
                 if (field.isAnnotationPresent(PrimaryKey.class)) {
+                    pair = new Pair();
                     pair.setName(ReflectionHelper.getDataBaseNameOfField(field));
                     pair.setType(field.getType());
                     pair.setValue(id.toString());
+                    existPrimaryKey = true;
                     break;
                 }
+            }
+            if (!existPrimaryKey) {
+                Log.e("No Primary Key defined, please add an annotation '@PrimaryKey' on one field inside of " + classType.getName(), null);
             }
         } catch (Exception e) {
             Log.e("Error: getPrimaryKey2", e);
@@ -194,30 +206,37 @@ public class QueryBuilder {
         return res;
     }
 
-    public static String getQuery(Class entity, long id) {
+    public static String getQuery(Class classType, long id) {
         StringBuffer sb = new StringBuffer();
         try {
-            sb.append(Ctt.SELECT_FROM);
-            sb.append(Ctt.WHERE);
-            sb.append(getPrimaryKey(entity, id).toString());
-            sb.append(Ctt.SEMICOLON);
-
+            Pair pair = getPrimaryKey(classType, id);
+            if (pair != null) {
+                sb.append(Ctt.SELECT_FROM);
+                sb.append(Ctt.WHERE);
+                sb.append(pair.toString());
+                sb.append(Ctt.SEMICOLON);
+                String table = geTableName(classType);
+                return sb.toString().replaceAll(Ctt.TABLE, table);
+            }
         } catch (Exception e) {
             Log.e("Error getQuery()", e);
         }
-        String table = geTableName(entity);
-        return sb.toString().replaceAll(Ctt.TABLE, table);
+        return null;
     }
 
     public static String getQueryRemove(Class entity, int id) {
         StringBuffer sb = new StringBuffer();
         try {
-            sb.append(Ctt.DELETE.replaceFirst(Ctt.KEYS, getPrimaryKey(entity, id).toString()));
+            Pair pair = getPrimaryKey(entity, id);
+            if (pair != null) {
+                sb.append(Ctt.DELETE.replaceFirst(Ctt.KEYS, pair.toString()));
+                String table = geTableName(entity);
+                return sb.toString().replaceAll(Ctt.TABLE, table);
+            }
         } catch (Exception e) {
             Log.e("Error getQueryRemove()", e);
         }
-        String table = geTableName(entity);
-        return sb.toString().replaceAll(Ctt.TABLE, table);
+        return null;
     }
 
     public static String getQueryInsert(Entity entity) {
@@ -236,8 +255,11 @@ public class QueryBuilder {
     public static String getQueryUpdate(Entity entity) {
         StringBuffer sb = new StringBuffer();
         try {
-            sb.append(Ctt.UPDATE.replaceFirst(Ctt.PAIRS, getPairs(entity)).
-                    replaceFirst(Ctt.KEYS, getPrimaryKey(entity).toString()));
+            Pair pair = getPrimaryKey(entity);
+            if (pair != null) {
+                sb.append(Ctt.UPDATE.replaceFirst(Ctt.PAIRS, getPairs(entity)).
+                        replaceFirst(Ctt.KEYS, pair.toString()));
+            }
         } catch (Exception e) {
             Log.e("Error getQueryUpdate()", e);
         }

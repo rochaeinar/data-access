@@ -7,13 +7,11 @@ import android.view.MenuItem;
 
 import com.erc.dal.Aggregation;
 import com.erc.dal.DB;
-import com.erc.dal.ExpresionOperator;
 import com.erc.dal.Log;
 import com.erc.dal.Options;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -29,7 +27,9 @@ public class MainActivity extends ActionBarActivity {
         db.save(t);
 
         Marcador m2 = db.getById(Marcador.class, 1);
-        Log.w(m2.toString());
+        if (m2 != null) {
+            Log.w(m2.toString());
+        }
 
         ArrayList<Marcador> entities = db.getAll(Marcador.class);
         for (Marcador entity : entities) {
@@ -57,7 +57,15 @@ public class MainActivity extends ActionBarActivity {
         termino.description = "test";
         db.save(termino);
 
-        Log.w(db.getById(Termino.class, 1).toString());
+        ArrayList<Termino> terminos = db.getAll(Termino.class);
+        for (Termino entity : terminos) {
+            Log.w(entity.toString());
+        }
+
+        Termino termino1 = db.getById(Termino.class, 1);
+        if (termino1 != null) {
+            Log.w(termino1.toString());
+        }
 
     }
 

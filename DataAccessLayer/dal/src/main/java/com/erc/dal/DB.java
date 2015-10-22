@@ -4,7 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -27,30 +27,38 @@ public class DB {
     public Entity save(Entity entity) {
         String sql = "";
         Pair pair = QueryBuilder.getPrimaryKey(entity);
-        if (pair.getValue().toString().isEmpty() || pair.getValue().toString().equals("0")) {
-            QueryBuilder.setID(entity, this);
-            sql = QueryBuilder.getQueryInsert(entity);
+        if (pair != null) {
+            if (pair.getValue().toString().isEmpty() || pair.getValue().toString().equals("0")) {
+                QueryBuilder.setID(entity, this);
+                sql = QueryBuilder.getQueryInsert(entity);
+            } else {
+                sql = QueryBuilder.getQueryUpdate(entity);
+            }
+            execSQL(sql);
+            return entity;
         } else {
-            sql = QueryBuilder.getQueryUpdate(entity);
+            return null;
         }
-        execSQL(sql);
-        return entity;
     }
 
     public <T> T getById(Class classType, long id) {
         T entity = null;
         String sql = QueryBuilder.getQuery(classType, id);
-        Cursor cursor = rawQuery(sql);
-        if (cursor.moveToNext()) {
-            try {
-                entity = (T) ReflectionHelper.getInstance(classType, new Object[]{}, new Class[]{});
-                ArrayList<java.lang.reflect.Field> fields = ReflectionHelper.getFields(entity);
-                fillFields(fields, cursor, entity);
-            } catch (Exception e) {
-                Log.e("Fail to fill getById", e);
+        if (!Util.isNullOrEmpty(sql)) {
+            Cursor cursor = rawQuery(sql);
+            if (cursor.moveToNext()) {
+                try {
+                    entity = (T) ReflectionHelper.getInstance(classType, new Object[]{}, new Class[]{});
+                    ArrayList<java.lang.reflect.Field> fields = ReflectionHelper.getFields(entity);
+                    fillFields(fields, cursor, entity);
+                } catch (Exception e) {
+                    Log.e("Fail to fill getById", e);
+                }
             }
+            return entity;
+        } else {
+            return null;
         }
-        return entity;
     }
 
     public <T> ArrayList<T> getAll(Class classType, Options... options) {
@@ -94,7 +102,10 @@ public class DB {
 
     public boolean remove(Class classType, int id) {
         String sql = QueryBuilder.getQueryRemove(classType, id);
-        return execSQL(sql);
+        if (Util.isNullOrEmpty(sql)) {
+            return execSQL(sql);
+        }
+        return false;
     }
 
     private Cursor rawQuery(String sql) {

@@ -14,7 +14,7 @@ import java.util.Date;
  */
 @Table(name = "Marcador")
 public class Marcador extends Entity{
-    @PrimaryKey
+    //@PrimaryKey
     @Field(name = "ID")
     public long id;
 

@@ -5,6 +5,9 @@ package com.erc.dal;
  */
 public class Log {
     public static void e(String message, Exception e) {
+        if (e == null) {
+            e = new Exception();
+        }
         String fullMessagemessage = "ERROR: " + message +
                 ", Message:" + e.getMessage() +
                 ", LocalizedMessage:" + e.getLocalizedMessage() +

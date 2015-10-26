@@ -12,12 +12,8 @@ public class Options {
 
     private String orderBy;
     private String limit;
-    private String select;
     private boolean ascending;
     private boolean distinct;
-    private String count;
-    private String min;
-    private String max;
     private ArrayList<Expresion> expresions;
     private Class entityClass;
     String tableName;
@@ -70,13 +66,6 @@ public class Options {
         }
     }
 
-    @Deprecated
-    private void select(String... fields) {
-        if (fields.length > 0) {
-            select = TextUtils.join(",", fields);
-        }
-    }
-
     public void limit(int limit) {
         this.limit = limit + "";
     }
@@ -89,9 +78,6 @@ public class Options {
 
         if (getDistinct()) {
             selectAllSQL = selectAllSQL.replace(Ctt.SELECT, Ctt.SELECT + Ctt.DISTINCT);
-        }
-        if (!Util.isNullOrEmpty(getSelect())) {
-            selectAllSQL = selectAllSQL.replace("*", getSelect());
         }
 
         if (aggregation.length > 0) {
@@ -159,18 +145,10 @@ public class Options {
         return res;
     }
 
-    private String getSelect() {
-        return select;
-    }
-
     private void clearForAggregation() {
-        if (!Util.isNullOrEmpty(select)) {
-            Log.w("Fields to select '" + select + "' will be ignored... in order to use aggregation operator");
-        }
         if (distinct) {
             Log.w("'Distinct' will be ignored... in order to use aggregation operator");
         }
-        select = null;
         distinct = false;
     }
 

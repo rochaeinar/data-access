@@ -65,7 +65,7 @@ public class DB {
         ArrayList<T> entities = new ArrayList<>();
         Options options_ = options.length == 0 ? new Options() : options[0];
         String selectAll = QueryBuilder.getAllQuery(classType);
-        selectAll = options_.getSql(classType, selectAll) + Ctt.SEMICOLON;
+        selectAll = options_.getSql(classType, selectAll) + Constant.SEMICOLON;
         Cursor cursor = rawQuery(selectAll);
         while (cursor.moveToNext()) {
             try {
@@ -86,7 +86,7 @@ public class DB {
             if (aggregationOperator != null) {
                 Options options_ = options.length == 0 ? new Options() : options[0];
                 String selectAll = QueryBuilder.getAllQuery(classType);
-                selectAll = options_.getSql(classType, selectAll, aggregationOperator) + Ctt.SEMICOLON;
+                selectAll = options_.getSql(classType, selectAll, aggregationOperator) + Constant.SEMICOLON;
                 Cursor cursor = rawQuery(selectAll);
                 if (cursor.moveToNext()) {
                     res = cursor.getLong(0);

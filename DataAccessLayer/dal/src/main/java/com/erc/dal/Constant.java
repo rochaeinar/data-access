@@ -3,7 +3,7 @@ package com.erc.dal;
 /**
  * Created by einar on 8/31/2015.
  */
-public class Ctt {
+public class Constant {
     public static final String TABLE = "%t";
     public static final String FIELD = "%f";
     public static final String VALUE = "%v";

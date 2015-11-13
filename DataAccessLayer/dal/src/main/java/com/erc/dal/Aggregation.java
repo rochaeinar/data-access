@@ -5,11 +5,11 @@ package com.erc.dal;
  */
 public class Aggregation {
 
-    public static final String AVG = " AVG(" + Ctt.VALUE + ") ";
-    public static final String SUM = " SUM(" + Ctt.VALUE + ") ";
-    public static final String MAX = " MAX(" + Ctt.VALUE + ") ";
-    public static final String MIN = " MIN(" + Ctt.VALUE + ") ";
-    public static final String COUNT = " COUNT(" + Ctt.VALUE + ") ";
+    public static final String AVG = " AVG(" + Constant.VALUE + ") ";
+    public static final String SUM = " SUM(" + Constant.VALUE + ") ";
+    public static final String MAX = " MAX(" + Constant.VALUE + ") ";
+    public static final String MIN = " MIN(" + Constant.VALUE + ") ";
+    public static final String COUNT = " COUNT(" + Constant.VALUE + ") ";
 
     private String field;
     private String operator;
@@ -55,7 +55,7 @@ public class Aggregation {
                     String fieldName = ReflectionHelper.getFieldNameFromDBName(entityClass, getField());
                     java.lang.reflect.Field field = entityClass.getField(fieldName);
                 }
-                res = getOperator().replace(Ctt.VALUE, getField());
+                res = getOperator().replace(Constant.VALUE, getField());
             } catch (NoSuchFieldException e) {
                 Log.e("null field: " + getField(), e);
             }

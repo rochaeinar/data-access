@@ -96,7 +96,7 @@ public class QueryBuilder {
                     if (field.isAnnotationPresent(com.erc.dal.Field.class)) {
                         fields.add(ReflectionHelper.getDataBaseNameOfField(field));
                         if (HelperDataType.hasCuotes(field.getType())) {
-                            values.add(Ctt.VALUE_QUOTES.replaceFirst(Ctt.VALUE, Util.getValueFromField(field, entity)));
+                            values.add(Constant.VALUE_QUOTES.replaceFirst(Constant.VALUE, Util.getValueFromField(field, entity)));
                         } else {
                             values.add(Util.getValueFromField(field, entity));
                         }
@@ -119,11 +119,11 @@ public class QueryBuilder {
                 if (field.isAnnotationPresent(com.erc.dal.Field.class)) {
                     String name = ReflectionHelper.getDataBaseNameOfField(field);
                     if (HelperDataType.hasCuotes(field.getType())) {
-                        pairs.add(Ctt.PAIR_QUOTE.replaceFirst(Ctt.FIELD, name).
-                                replaceFirst(Ctt.VALUE, Util.getValueFromField(field, entity)));
+                        pairs.add(Constant.PAIR_QUOTE.replaceFirst(Constant.FIELD, name).
+                                replaceFirst(Constant.VALUE, Util.getValueFromField(field, entity)));
                     } else {
-                        pairs.add(Ctt.PAIR.replaceFirst(Ctt.FIELD, name).
-                                replaceFirst(Ctt.VALUE, Util.getValueFromField(field, entity)));
+                        pairs.add(Constant.PAIR.replaceFirst(Constant.FIELD, name).
+                                replaceFirst(Constant.VALUE, Util.getValueFromField(field, entity)));
                     }
                 }
             }
@@ -182,8 +182,8 @@ public class QueryBuilder {
                     try {
                         Class entity = context.getClassLoader().loadClass(className);
                         if (entity.isAnnotationPresent(type)) {
-                            sb.append(Ctt.CREATE.replaceFirst(Ctt.TABLE, geTableName(entity)).
-                                    replaceFirst(Ctt.FIELDS, getPairsToCreate(entity)));
+                            sb.append(Constant.CREATE.replaceFirst(Constant.TABLE, geTableName(entity)).
+                                    replaceFirst(Constant.FIELDS, getPairsToCreate(entity)));
                         }
                     } catch (ClassNotFoundException e) {
                         Log.e("Error findSubClasses.ClassNotFoundException", e);
@@ -199,7 +199,7 @@ public class QueryBuilder {
     public static String getAllQuery(Class entity) {
         String res = "";
         try {
-            res = Ctt.SELECT_FROM.replaceFirst("%t", geTableName(entity));
+            res = Constant.SELECT_FROM.replaceFirst("%t", geTableName(entity));
         } catch (Exception e) {
             Log.e("Error getAllQuery()", e);
         }
@@ -211,12 +211,12 @@ public class QueryBuilder {
         try {
             Pair pair = getPrimaryKey(classType, id);
             if (pair != null) {
-                sb.append(Ctt.SELECT_FROM);
-                sb.append(Ctt.WHERE);
+                sb.append(Constant.SELECT_FROM);
+                sb.append(Constant.WHERE);
                 sb.append(pair.toString());
-                sb.append(Ctt.SEMICOLON);
+                sb.append(Constant.SEMICOLON);
                 String table = geTableName(classType);
-                return sb.toString().replaceAll(Ctt.TABLE, table);
+                return sb.toString().replaceAll(Constant.TABLE, table);
             }
         } catch (Exception e) {
             Log.e("Error getQuery()", e);
@@ -229,9 +229,9 @@ public class QueryBuilder {
         try {
             Pair pair = getPrimaryKey(entity, id);
             if (pair != null) {
-                sb.append(Ctt.DELETE.replaceFirst(Ctt.KEYS, pair.toString()));
+                sb.append(Constant.DELETE.replaceFirst(Constant.KEYS, pair.toString()));
                 String table = geTableName(entity);
-                return sb.toString().replaceAll(Ctt.TABLE, table);
+                return sb.toString().replaceAll(Constant.TABLE, table);
             }
         } catch (Exception e) {
             Log.e("Error getQueryRemove()", e);
@@ -243,13 +243,13 @@ public class QueryBuilder {
         StringBuffer sb = new StringBuffer();
         try {
             NameValue namesValues = getNamesValues(entity);
-            sb.append(Ctt.INSERT.replaceFirst(Ctt.FIELDS, namesValues.getName().toString()).
-                    replaceFirst(Ctt.VALUES, namesValues.getValue().toString()));
+            sb.append(Constant.INSERT.replaceFirst(Constant.FIELDS, namesValues.getName().toString()).
+                    replaceFirst(Constant.VALUES, namesValues.getValue().toString()));
         } catch (Exception e) {
             Log.e("Error getQueryInsert()", e);
         }
         String table = geTableName(entity.getClass());
-        return sb.toString().replaceAll(Ctt.TABLE, table);
+        return sb.toString().replaceAll(Constant.TABLE, table);
     }
 
     public static String getQueryUpdate(Entity entity) {
@@ -257,14 +257,14 @@ public class QueryBuilder {
         try {
             Pair pair = getPrimaryKey(entity);
             if (pair != null) {
-                sb.append(Ctt.UPDATE.replaceFirst(Ctt.PAIRS, getPairs(entity)).
-                        replaceFirst(Ctt.KEYS, pair.toString()));
+                sb.append(Constant.UPDATE.replaceFirst(Constant.PAIRS, getPairs(entity)).
+                        replaceFirst(Constant.KEYS, pair.toString()));
             }
         } catch (Exception e) {
             Log.e("Error getQueryUpdate()", e);
         }
         String table = geTableName(entity.getClass());
-        return sb.toString().replaceAll(Ctt.TABLE, table);
+        return sb.toString().replaceAll(Constant.TABLE, table);
     }
 
 

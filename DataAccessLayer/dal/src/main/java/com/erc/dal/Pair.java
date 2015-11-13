@@ -46,9 +46,9 @@ public class Pair {
         boolean hasQuotes = type.equals(String.class);
         String res = "";
         if (hasQuotes) {
-            res = Ctt.TABLE_PAIR_QUOTES.replaceFirst(Ctt.FIELD, name).replaceFirst(Ctt.VALUE, value);
+            res = Constant.TABLE_PAIR_QUOTES.replaceFirst(Constant.FIELD, name).replaceFirst(Constant.VALUE, value);
         } else {
-            res = Ctt.TABLE_PAIR.replaceFirst(Ctt.FIELD, name).replaceFirst(Ctt.VALUE, value);
+            res = Constant.TABLE_PAIR.replaceFirst(Constant.FIELD, name).replaceFirst(Constant.VALUE, value);
         }
         return res;
     }

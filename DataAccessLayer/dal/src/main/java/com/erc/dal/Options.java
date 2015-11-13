@@ -26,8 +26,8 @@ public class Options {
     public void and(String fieldName, Object value, ExpresionOperator... expresionOperator) {
         String value_ = Util.getValueFromObject(value);
         if (!Util.isNullOrEmpty(fieldName) && !Util.isNullOrEmpty(value_)) {
-            ExpresionOperator expresionOperator_ = expresionOperator.length == 0 ? ExpresionOperator.equals() : expresionOperator[0];
-            expresions.add(new Expresion(fieldName, expresionOperator_, value_, LogicalOperator.and()));
+            ExpresionOperator expresionOperator_ = expresionOperator.length == 0 ? ExpresionOperator.EQUALS : expresionOperator[0];
+            expresions.add(new Expresion(fieldName, expresionOperator_, value_, LogicalOperator.AND));
         } else {
             Log.w("Null or empty value on Options.and: " + fieldName + ", " + value);
         }
@@ -36,8 +36,8 @@ public class Options {
     public void or(String fieldName, Object value, ExpresionOperator... expresionOperator) {
         String value_ = Util.getValueFromObject(value);
         if (!Util.isNullOrEmpty(fieldName) && !Util.isNullOrEmpty(value_)) {
-            ExpresionOperator expresionOperator_ = expresionOperator.length == 0 ? ExpresionOperator.equals() : expresionOperator[0];
-            expresions.add(new Expresion(fieldName, expresionOperator_, value_, LogicalOperator.or()));
+            ExpresionOperator expresionOperator_ = expresionOperator.length == 0 ? ExpresionOperator.EQUALS : expresionOperator[0];
+            expresions.add(new Expresion(fieldName, expresionOperator_, value_, LogicalOperator.OR));
         } else {
             Log.w("Null or empty value on Options.or: " + fieldName + ", " + value);
         }
@@ -53,14 +53,14 @@ public class Options {
     }
 
     public void in(String fieldName, ArrayList values, LogicalOperator... logicalOperator) {
-        LogicalOperator logicalOperator_ = logicalOperator.length == 0 ? LogicalOperator.and() : logicalOperator[0];
+        LogicalOperator logicalOperator_ = logicalOperator.length == 0 ? LogicalOperator.AND : logicalOperator[0];
         ArrayList<String> items = new ArrayList<>();
         if (values.size() > 0) {
             boolean hasQuotes = HelperDataType.hasCuotes(values.get(0));
             for (Object item : values) {
-                items.add((hasQuotes ? Ctt.VALUE_QUOTES : Ctt.VALUE).replaceFirst(Ctt.VALUE, Util.getValueFromObject(item)));
+                items.add((hasQuotes ? Constant.VALUE_QUOTES : Constant.VALUE).replaceFirst(Constant.VALUE, Util.getValueFromObject(item)));
             }
-            Expresion expresion = new Expresion(fieldName, ExpresionOperator.in(), "(" + TextUtils.join(",", items) + ")", logicalOperator_);
+            Expresion expresion = new Expresion(fieldName, ExpresionOperator.IN, "(" + TextUtils.join(",", items) + ")", logicalOperator_);
             expresion.setIgnoreQuotes(true);
             expresions.add(expresion);
         }
@@ -77,7 +77,7 @@ public class Options {
         StringBuffer sb = new StringBuffer();
 
         if (getDistinct()) {
-            selectAllSQL = selectAllSQL.replace(Ctt.SELECT, Ctt.SELECT + Ctt.DISTINCT);
+            selectAllSQL = selectAllSQL.replace(Constant.SELECT, Constant.SELECT + Constant.DISTINCT);
         }
 
         if (aggregation.length > 0) {
@@ -91,7 +91,7 @@ public class Options {
         sb.append(selectAllSQL);
         String expresions = getExpressions();
         if (expresions.length() > 0) {
-            sb.append(Ctt.WHERE);
+            sb.append(Constant.WHERE);
             sb.append(expresions);
         }
         sb.append(getOrderBy());
@@ -126,7 +126,7 @@ public class Options {
         String res = "";
         if (!Util.isNullOrEmpty(tableName)) {
             if (!Util.isNullOrEmpty(orderBy)) {
-                res = Ctt.ORDER_BY + tableName + "." + orderBy + (ascending ? Ctt.ASC : Ctt.DESC);
+                res = Constant.ORDER_BY + tableName + "." + orderBy + (ascending ? Constant.ASC : Constant.DESC);
             }
         } else {
             Log.w("Null TableName on getOrderBy");
@@ -141,7 +141,7 @@ public class Options {
     private String getLimit() {
         String res = "";
         if (!Util.isNullOrEmpty(limit))
-            res = Ctt.LIMIT + limit;
+            res = Constant.LIMIT + limit;
         return res;
     }
 

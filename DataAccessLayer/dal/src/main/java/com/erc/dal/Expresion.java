@@ -36,7 +36,7 @@ public class Expresion {
     }
 
     public String getExpresionString(String table, boolean hasCuotes) {
-        String value = hasCuotes && !isIgnoreQuotes() ? Ctt.VALUE_QUOTES : Ctt.VALUE;
-        return table + "." + left + expresionOperator + value.replace(Ctt.VALUE, right);
+        String value = hasCuotes && !isIgnoreQuotes() ? Constant.VALUE_QUOTES : Constant.VALUE;
+        return table + "." + left + expresionOperator + value.replace(Constant.VALUE, right);
     }
 }

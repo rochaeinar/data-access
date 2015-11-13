@@ -12,15 +12,15 @@ public class Log {
                 ", Message:" + e.getMessage() +
                 ", LocalizedMessage:" + e.getLocalizedMessage() +
                 ", ToString:" + e.toString();
-        android.util.Log.e(Ctt.TAG, fullMessagemessage);
+        android.util.Log.e(Constant.TAG, fullMessagemessage);
         e.printStackTrace();
     }
 
     public static void w(String message) {
-        android.util.Log.w(Ctt.TAG, message);
+        android.util.Log.w(Constant.TAG, message);
     }
 
     public static void i(String message) {
-        android.util.Log.i(Ctt.TAG, message);
+        android.util.Log.i(Constant.TAG, message);
     }
 }

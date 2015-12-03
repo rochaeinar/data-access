@@ -16,12 +16,12 @@ Step 2. Add the dependency in the form
 	}
 	
 # Table Example
-@Table(name = "Marcador") 
+@Table(name = "Marcador")
 public class Marcador extends Entity{ 
     @PrimaryKey
     @Field(name = "ID")
     public long id;
-
+    
     @Field
     public String description;
 

@@ -16,8 +16,8 @@ Step 2. Add the dependency in the form
 	}
 	
 # Table Example
-@Table(name = "Marcador")
-public class Marcador extends Entity{ 
+ @Table(name = "Marcador")
+ public class Marcador extends Entity{ 
     @PrimaryKey
     @Field(name = "ID")
     public long id;

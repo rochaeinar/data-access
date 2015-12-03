@@ -30,7 +30,7 @@ public class ReflectionHelper {
             Constructor<?> ctor = clazz.getConstructor(paramsConstructorTypes);
             object = ctor.newInstance(paramsConstructor);
         } catch (Exception e) {
-            Log.e("ReflectionHelper.getInstance", e);
+            Log.e("Please make sure that exist a Default constructor without parameters...", e);
         }
         return object;
     }

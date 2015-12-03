@@ -163,7 +163,7 @@ public class QueryBuilder {
                     }
                 }
             } else {
-                Log.w("Invalid Entity class");
+                Log.e("Make sure that exist the annotation '@Table' on " + entity.getName(), null);
             }
         } catch (Exception e) {
             Log.e("Error: geTableName", e);

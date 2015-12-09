@@ -22,7 +22,7 @@ public class QueryBuilder {
                 if (field.isAnnotationPresent(PrimaryKey.class)) {
                     long id = generateId(entity, db);
                     if (field.getType().equals(String.class)) {
-                        field.set(entity, id + "");
+                        field.set(entity, Util.fillRight(Long.toString(id), Constant.LENGTH_TEXT_ID, '0'));
                     } else {
                         field.set(entity, id);
                     }
@@ -224,7 +224,7 @@ public class QueryBuilder {
         return null;
     }
 
-    public static String getQueryRemove(Class entity, int id) {
+    public static String getQueryRemove(Class entity, long id) {
         StringBuffer sb = new StringBuffer();
         try {
             Pair pair = getPrimaryKey(entity, id);

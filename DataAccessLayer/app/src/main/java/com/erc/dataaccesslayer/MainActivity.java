@@ -21,7 +21,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        DB db = new DB(getApplicationContext());
+        DB db = DB.getInstance(getApplicationContext());
 
         Marcador t = new Marcador();
         db.save(t);

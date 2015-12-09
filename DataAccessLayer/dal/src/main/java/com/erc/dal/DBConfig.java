@@ -17,7 +17,7 @@ public class DBConfig {
         this.version = version;
         this.url = url;
         if (Util.isNullOrEmpty(dataBaseName)) {
-            this.dataBaseName = DBManager.getDataBaseName(context);
+            this.dataBaseName = SQLiteDatabaseManager.getDataBaseName(context);
         }
     }
 

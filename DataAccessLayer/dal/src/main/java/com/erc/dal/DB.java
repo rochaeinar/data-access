@@ -9,22 +9,37 @@ import java.util.ArrayList;
 import java.util.Date;
 
 /**
- * Created by yhoseph on 20-10-15.
+ * Created by einar on 20-10-15.
  */
 public class DB {
-    DBConfig dbConfig;
+    private DBConfig dbConfig;
+    private static DB db;
 
-    public DB(Context context) {
+    private DB(Context context) {
         this.dbConfig = new DBConfig(context, null, 1, null);
-        DBManager.open(this.dbConfig);
+        SQLiteDatabaseManager.openReadOnly(this.dbConfig);
     }
 
-    public DB(DBConfig dbConfig) {
+    private DB(DBConfig dbConfig) {
         this.dbConfig = dbConfig;
-        DBManager.open(this.dbConfig);
+        SQLiteDatabaseManager.openReadOnly(this.dbConfig);
     }
 
-    public Entity save(Entity entity) {
+    public static DB getInstance(Context context) {
+        if (db == null) {
+            db = new DB(context);
+        }
+        return db;
+    }
+
+    public static DB getInstance(DBConfig dbConfig) {
+        if (db == null) {
+            db = new DB(dbConfig);
+        }
+        return db;
+    }
+
+    public synchronized Entity save(Entity entity) {
         String sql = "";
         Pair pair = QueryBuilder.getPrimaryKey(entity);
         if (pair != null) {
@@ -100,27 +115,29 @@ public class DB {
         return res;
     }
 
-    public boolean remove(Class classType, int id) {
+    public synchronized boolean remove(Class classType, long id) {
         String sql = QueryBuilder.getQueryRemove(classType, id);
-        if (Util.isNullOrEmpty(sql)) {
+        if (!Util.isNullOrEmpty(sql)) {
             return execSQL(sql);
         }
         return false;
     }
 
     private Cursor rawQuery(String sql) {
-        SQLiteDatabase db = DBManager.openReadOnly(dbConfig);
+        SQLiteDatabase db = SQLiteDatabaseManager.openReadOnly(dbConfig);
         Cursor cursor = null;
         try {
             cursor = db.rawQuery(sql, null);
         } catch (Exception e) {
             Log.e("Failed to execute raw SQL", e);
+        } finally {
+
         }
         return cursor;
     }
 
-    public boolean execSQL(String sql) {
-        SQLiteDatabase db = DBManager.open(dbConfig);
+    public synchronized boolean execSQL(String sql) {
+        SQLiteDatabase db = SQLiteDatabaseManager.open(dbConfig);
         boolean res = false;
         try {
             db.execSQL(sql);
@@ -128,6 +145,8 @@ public class DB {
             res = true;
         } catch (Exception e) {
             Log.e("Failed to execute SQL", e);
+        } finally {
+
         }
         return res;
     }

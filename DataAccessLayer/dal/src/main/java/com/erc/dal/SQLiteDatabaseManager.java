@@ -10,13 +10,13 @@ import java.io.File;
 /**
  * Created by einar on 9/6/2015.
  */
-public class DBManager extends SQLiteOpenHelper {
+public class SQLiteDatabaseManager extends SQLiteOpenHelper {
 
     private static Upgradeable upgradeable;
-    private static DBManager dbManager;
+    private static SQLiteDatabaseManager sqLiteDatabaseManager;
     private Context context;
 
-    private DBManager(DBConfig dbConfigs) {
+    private SQLiteDatabaseManager(DBConfig dbConfigs) {
         super(dbConfigs.getContext(), dbConfigs.getDataBaseName(), null, dbConfigs.getVersion());
         this.context = dbConfigs.getContext();
     }
@@ -35,11 +35,11 @@ public class DBManager extends SQLiteOpenHelper {
         upgradeable.onUpgrade(db, oldVersion, newVersion);
     }
 
-    private static DBManager getInstance(DBConfig dbConfig) {
-        if (dbManager == null) {
-            dbManager = new DBManager(dbConfig);
+    private static SQLiteDatabaseManager getInstance(DBConfig dbConfig) {
+        if (sqLiteDatabaseManager == null) {
+            sqLiteDatabaseManager = new SQLiteDatabaseManager(dbConfig);
         }
-        return dbManager;
+        return sqLiteDatabaseManager;
     }
 
     public static SQLiteDatabase open(DBConfig dbConfig) {
@@ -76,8 +76,8 @@ public class DBManager extends SQLiteOpenHelper {
 
     public static void closeDb() {
         try {
-            if (dbManager != null) {
-                dbManager.close();
+            if (sqLiteDatabaseManager != null) {
+                sqLiteDatabaseManager.close();
             }
         } catch (Exception e) {
             Log.e("Closing data base", e);
@@ -91,6 +91,6 @@ public class DBManager extends SQLiteOpenHelper {
     }
 
     public static void setOnUpgradeListener(Upgradeable upgradeable) {
-        DBManager.upgradeable = upgradeable;
+        sqLiteDatabaseManager.upgradeable = upgradeable;
     }
 }

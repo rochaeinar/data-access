@@ -54,5 +54,22 @@ public class Util {
         return (text == null || text.trim().equals("null") || text.trim().length() <= 0);
     }
 
+    public static String fillRight(String text, int length, char characterToFill) {
+        String filledIn = "";
+        int sizeToFill = length - text.length();
+        for (int i = 0; i < sizeToFill; i++) {
+            filledIn += characterToFill;
+        }
+        return text + filledIn;
+    }
+
+    public static String fillLeft(String text, int length, char characterToFill) {
+        String filledIn = "";
+        int sizeToFill = length - text.length();
+        for (int i = 0; i < sizeToFill; i++) {
+            filledIn += characterToFill;
+        }
+        return filledIn + text;
+    }
 
 }

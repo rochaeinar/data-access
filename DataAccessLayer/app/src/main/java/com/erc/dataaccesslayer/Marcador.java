@@ -1,7 +1,5 @@
 package com.erc.dataaccesslayer;
 
-import android.content.Context;
-
 import com.erc.dal.Entity;
 import com.erc.dal.Field;
 import com.erc.dal.PrimaryKey;
@@ -13,7 +11,7 @@ import java.util.Date;
  * Created by einar on 8/6/2015.
  */
 @Table(name = "Marcador")
-public class Marcador extends Entity{
+public class Marcador extends Entity {
     @PrimaryKey
     @Field(name = "ID")
     public long id;

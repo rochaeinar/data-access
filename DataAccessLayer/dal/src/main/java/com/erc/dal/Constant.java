@@ -31,4 +31,5 @@ public class Constant {
     public static final String LIMIT = " LIMIT ";
 
     public static final String TAG = "DATA_ACCESS";
+    public static final int LENGTH_TEXT_ID = 10;
 }

@@ -26,6 +26,7 @@ public class QueryBuilder {
                     } else {
                         field.set(entity, id);
                     }
+                    break;
                 }
             }
         } catch (Exception e) {

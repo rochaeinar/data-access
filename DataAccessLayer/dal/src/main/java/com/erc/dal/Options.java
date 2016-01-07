@@ -24,8 +24,12 @@ public class Options {
     }
 
     public void and(String fieldName, Object value, ExpresionOperator... expresionOperator) {
+        and(FieldParam.getInstance(fieldName), value, expresionOperator);
+    }
+
+    public void and(ExpresionSide fieldName, Object value, ExpresionOperator... expresionOperator) {
         String value_ = Util.getValueFromObject(value);
-        if (!Util.isNullOrEmpty(fieldName) && !Util.isNullOrEmpty(value_)) {
+        if (!Util.isNullOrEmpty(fieldName.toString()) && !Util.isNullOrEmpty(value_)) {
             ExpresionOperator expresionOperator_ = expresionOperator.length == 0 ? ExpresionOperator.EQUALS : expresionOperator[0];
             expresions.add(new Expresion(fieldName, expresionOperator_, value_, LogicalOperator.AND));
         } else {
@@ -34,8 +38,12 @@ public class Options {
     }
 
     public void or(String fieldName, Object value, ExpresionOperator... expresionOperator) {
+        or(FieldParam.getInstance(fieldName), value, expresionOperator);
+    }
+
+    public void or(ExpresionSide fieldName, Object value, ExpresionOperator... expresionOperator) {
         String value_ = Util.getValueFromObject(value);
-        if (!Util.isNullOrEmpty(fieldName) && !Util.isNullOrEmpty(value_)) {
+        if (!Util.isNullOrEmpty(fieldName.toString()) && !Util.isNullOrEmpty(value_)) {
             ExpresionOperator expresionOperator_ = expresionOperator.length == 0 ? ExpresionOperator.EQUALS : expresionOperator[0];
             expresions.add(new Expresion(fieldName, expresionOperator_, value_, LogicalOperator.OR));
         } else {
@@ -53,6 +61,10 @@ public class Options {
     }
 
     public void in(String fieldName, ArrayList values, LogicalOperator... logicalOperator) {
+        in(FieldParam.getInstance(fieldName), values, logicalOperator);
+    }
+
+    public void in(ExpresionSide fieldName, ArrayList values, LogicalOperator... logicalOperator) {
         LogicalOperator logicalOperator_ = logicalOperator.length == 0 ? LogicalOperator.AND : logicalOperator[0];
         ArrayList<String> items = new ArrayList<>();
         if (values.size() > 0) {
@@ -109,8 +121,13 @@ public class Options {
                     sb.append(e.getLogicalOperator());
                 }
                 try {
-                    Class type = entityClass.getField(e.getLeft()).getType();
-                    sb.append(e.getExpresionString(tableName, HelperDataType.hasCuotes(type)));
+                    if (e.getLeft() instanceof FieldParam) {
+                        Class type = entityClass.getField(e.getLeft().getString()).getType();
+                        sb.append(e.getExpresionString(tableName, HelperDataType.hasCuotes(type)));
+                    } else {
+                        Function function = (Function) e.getLeft();
+                        sb.append(e.getExpresionString(null, HelperDataType.hasCuotes(function.getReturnType())));
+                    }
                     i++;
                 } catch (NoSuchFieldException e1) {
                     Log.e("Invalid Expresion on  getExpressions", e1);

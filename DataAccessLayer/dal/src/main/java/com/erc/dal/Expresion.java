@@ -7,11 +7,11 @@ public class Expresion {
 
     private ExpresionOperator expresionOperator;
     private LogicalOperator logicalOperator;
-    private String left;
+    private ExpresionSide left;
     private String right;
     private boolean ignoreQuotes;
 
-    public Expresion(String left, ExpresionOperator expresionOperator, String right, LogicalOperator logicalOperator) {
+    public Expresion(ExpresionSide left, ExpresionOperator expresionOperator, String right, LogicalOperator logicalOperator) {
         this.expresionOperator = expresionOperator;
         this.logicalOperator = logicalOperator;
         this.left = left;
@@ -23,7 +23,7 @@ public class Expresion {
         return logicalOperator;
     }
 
-    public String getLeft() {
+    public ExpresionSide getLeft() {
         return left;
     }
 
@@ -37,6 +37,6 @@ public class Expresion {
 
     public String getExpresionString(String table, boolean hasCuotes) {
         String value = hasCuotes && !isIgnoreQuotes() ? Constant.VALUE_QUOTES : Constant.VALUE;
-        return table + "." + left + expresionOperator + value.replace(Constant.VALUE, right);
+        return (table == null ? "" : table + ".") + left + expresionOperator + value.replace(Constant.VALUE, right);
     }
 }

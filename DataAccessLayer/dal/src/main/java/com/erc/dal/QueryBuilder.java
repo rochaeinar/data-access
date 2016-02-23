@@ -207,7 +207,7 @@ public class QueryBuilder {
         return res;
     }
 
-    public static String getQuery(Class classType, long id) {
+    public static String getQuery(Class classType, Object id) {
         StringBuffer sb = new StringBuffer();
         try {
             Pair pair = getPrimaryKey(classType, id);
@@ -225,7 +225,7 @@ public class QueryBuilder {
         return null;
     }
 
-    public static String getQueryRemove(Class entity, long id) {
+    public static String getQueryRemove(Class entity, Object id) {
         StringBuffer sb = new StringBuffer();
         try {
             Pair pair = getPrimaryKey(entity, id);

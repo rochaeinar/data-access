@@ -24,9 +24,10 @@ public class MainActivity extends ActionBarActivity {
         DB db = DB.getInstance(getApplicationContext());
 
         Marcador t = new Marcador();
+        t.id = 7;
         db.save(t);
 
-        Marcador m2 = db.getById(Marcador.class, 1);
+        Marcador m2 = db.getById(Marcador.class, 7);
         if (m2 != null) {
             Log.w(m2.toString());
         }
@@ -39,11 +40,11 @@ public class MainActivity extends ActionBarActivity {
         Options options = new Options();
         options.and("description", "");
         options.and("code", "");
-        options.and("status", false);
+        options.and("status", true);
         options.and("date", null);
         options.orderBy("id", true);
         options.distinct(true);
-        options.in("id", new ArrayList(Arrays.asList(5, 30)));
+        options.in("id", new ArrayList(Arrays.asList(5, 7)));
         options.limit(5);
         entities = db.getAll(Marcador.class, options);
         for (Marcador entity : entities) {

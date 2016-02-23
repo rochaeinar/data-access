@@ -29,7 +29,7 @@ public class Options {
 
     public void and(ExpresionSide fieldName, Object value, ExpresionOperator... expresionOperator) {
         String value_ = Util.getValueFromObject(value);
-        if (!Util.isNullOrEmpty(fieldName.toString()) && !Util.isNullOrEmpty(value_)) {
+        if (!Util.isNullOrEmpty(fieldName.toString()) && value_ != null && value != null) {
             ExpresionOperator expresionOperator_ = expresionOperator.length == 0 ? ExpresionOperator.EQUALS : expresionOperator[0];
             expresions.add(new Expresion(fieldName, expresionOperator_, value_, LogicalOperator.AND));
         } else {
@@ -43,7 +43,7 @@ public class Options {
 
     public void or(ExpresionSide fieldName, Object value, ExpresionOperator... expresionOperator) {
         String value_ = Util.getValueFromObject(value);
-        if (!Util.isNullOrEmpty(fieldName.toString()) && !Util.isNullOrEmpty(value_)) {
+        if (!Util.isNullOrEmpty(fieldName.toString()) && value_ != null && value != null) {
             ExpresionOperator expresionOperator_ = expresionOperator.length == 0 ? ExpresionOperator.EQUALS : expresionOperator[0];
             expresions.add(new Expresion(fieldName, expresionOperator_, value_, LogicalOperator.OR));
         } else {

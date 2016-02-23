@@ -45,8 +45,7 @@ public class Marcador extends Entity {
         super();
         date = new Date();
         status = true;
-        code = 'A';
-        description = "This is a test";
+
     }
 
     @Override

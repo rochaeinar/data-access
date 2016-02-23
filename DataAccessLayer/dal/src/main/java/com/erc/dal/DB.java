@@ -43,8 +43,11 @@ public class DB {
         String sql = "";
         Pair pair = QueryBuilder.getPrimaryKey(entity);
         if (pair != null) {
-            if (pair.getValue().toString().isEmpty() || pair.getValue().toString().equals("0")) {
-                QueryBuilder.setID(entity, this);
+            Entity entityToUpdate = getById(entity.getClass(), Long.parseLong(pair.getValue()));
+            if (entityToUpdate == null) {
+                if (pair.getValue().toString().isEmpty() || pair.getValue().toString().equals("0")) {
+                    QueryBuilder.setID(entity, this);
+                }
                 sql = QueryBuilder.getQueryInsert(entity);
             } else {
                 sql = QueryBuilder.getQueryUpdate(entity);
@@ -56,7 +59,7 @@ public class DB {
         }
     }
 
-    public <T> T getById(Class classType, long id) {
+    public <T> T getById(Class classType, Object id) {
         T entity = null;
         String sql = QueryBuilder.getQuery(classType, id);
         if (!Util.isNullOrEmpty(sql)) {
@@ -115,7 +118,7 @@ public class DB {
         return res;
     }
 
-    public synchronized boolean remove(Class classType, long id) {
+    public synchronized boolean remove(Class classType, Object id) {
         String sql = QueryBuilder.getQueryRemove(classType, id);
         if (!Util.isNullOrEmpty(sql)) {
             return execSQL(sql);

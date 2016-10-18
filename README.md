@@ -47,7 +47,7 @@
 		    public float myFloat;
 		}
 #Initialize database
-		DB db = DB.getInstance(getApplicationContext());
+		DB db = new DB(getApplicationContext());
 #Save
 		Marcador t = new Marcador();
 		db.save(t);

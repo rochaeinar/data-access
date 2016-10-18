@@ -12,7 +12,7 @@
 * Add the dependency in "build.gradle" (module file)
 
 		dependencies {
-		        compile 'com.github.rochaeinar:data-access:1.0.6'
+		        compile 'com.github.rochaeinar:data-access:1.0.7'
 		}
 # Table Example
 		@Table(name = "OptionalTableName")

@@ -49,7 +49,7 @@ public class SQLiteDatabaseManager extends SQLiteOpenHelper {
                 db = getInstance(dbConfig).getWritableDatabase();
                 db.setLockingEnabled(false);
             } else {
-                db = SQLiteDatabase.openDatabase(dbConfig.getUrl(), null, SQLiteDatabase.OPEN_READWRITE);
+                db = SQLiteDatabase.openDatabase(dbConfig.getUrl() + "/" + dbConfig.getDataBaseName(), null, SQLiteDatabase.OPEN_READWRITE);
             }
         } catch (Exception e) {
             Log.e("Opening database", e);
@@ -64,8 +64,7 @@ public class SQLiteDatabaseManager extends SQLiteOpenHelper {
                 db = getInstance(dbConfig).getWritableDatabase();
                 db.setLockingEnabled(false);
             } else {
-                File path = Environment.getExternalStorageDirectory();
-                db = SQLiteDatabase.openDatabase(path.getAbsolutePath() + dbConfig.getUrl(), null, SQLiteDatabase.OPEN_READONLY);
+                db = SQLiteDatabase.openDatabase(dbConfig.getUrl() + "/" + dbConfig.getDataBaseName(), null, SQLiteDatabase.OPEN_READONLY);
             }
         } catch (Exception e) {
             Log.e("Opening database", e);

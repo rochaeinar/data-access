@@ -49,8 +49,7 @@ public class SQLiteDatabaseManager extends SQLiteOpenHelper {
                 db = getInstance(dbConfig).getWritableDatabase();
                 db.setLockingEnabled(false);
             } else {
-                File path = Environment.getExternalStorageDirectory();
-                db = SQLiteDatabase.openDatabase(path.getAbsolutePath() + dbConfig.getUrl(), null, SQLiteDatabase.OPEN_READWRITE);
+                db = SQLiteDatabase.openDatabase(dbConfig.getUrl(), null, SQLiteDatabase.OPEN_READWRITE);
             }
         } catch (Exception e) {
             Log.e("Opening database", e);

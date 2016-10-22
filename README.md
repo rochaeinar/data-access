@@ -12,7 +12,7 @@
 * Add the dependency in "build.gradle" (module file)
 
 		dependencies {
-		        compile 'com.github.rochaeinar:data-access:1.0.6'
+		        compile 'com.github.rochaeinar:data-access:1.0.7'
 		}
 # Table Example
 		@Table(name = "OptionalTableName")
@@ -47,7 +47,7 @@
 		    public float myFloat;
 		}
 #Initialize database
-		DB db = DB.getInstance(getApplicationContext());
+		DB db = new DB(getApplicationContext());
 #Save
 		Marcador t = new Marcador();
 		db.save(t);

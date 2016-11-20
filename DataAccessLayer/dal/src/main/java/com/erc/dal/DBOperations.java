@@ -50,7 +50,7 @@ class DBOperations {
         String sql = QueryBuilder.getQuery(classType, id);
         if (!Util.isNullOrEmpty(sql)) {
             Cursor cursor = rawQuery(sql, dbConfig);
-            if (cursor.moveToNext()) {
+            if (cursor != null && cursor.moveToNext()) {
                 try {
                     entity = (T) ReflectionHelper.getInstance(classType, new Object[]{}, new Class[]{});
                     ArrayList<java.lang.reflect.Field> fields = ReflectionHelper.getFields(entity);
@@ -71,7 +71,7 @@ class DBOperations {
         String selectAll = QueryBuilder.getAllQuery(classType);
         selectAll = options_.getSql(classType, selectAll) + Constant.SEMICOLON;
         Cursor cursor = rawQuery(selectAll, dbConfig);
-        while (cursor.moveToNext()) {
+        while (cursor != null && cursor.moveToNext()) {
             try {
                 Object entity = ReflectionHelper.getInstance(classType, new Object[]{}, new Class[]{});
                 ArrayList<java.lang.reflect.Field> fields = ReflectionHelper.getFields(entity);
@@ -92,7 +92,7 @@ class DBOperations {
                 String selectAll = QueryBuilder.getAllQuery(classType);
                 selectAll = options_.getSql(classType, selectAll, aggregationOperator) + Constant.SEMICOLON;
                 Cursor cursor = rawQuery(selectAll, dbConfig);
-                if (cursor.moveToNext()) {
+                if (cursor != null && cursor.moveToNext()) {
                     res = cursor.getLong(0);
                 }
             } else {

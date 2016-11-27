@@ -32,7 +32,9 @@ public class SQLiteDatabaseManager extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        upgradeable.onUpgrade(db, oldVersion, newVersion);
+        if (upgradeable != null) {
+            upgradeable.onUpgrade(db, oldVersion, newVersion);
+        }
     }
 
     private static SQLiteDatabaseManager getInstance(DBConfig dbConfig) {

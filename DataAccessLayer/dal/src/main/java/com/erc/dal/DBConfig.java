@@ -15,7 +15,7 @@ public class DBConfig {
         this.context = context;
         this.dataBaseName = dataBaseName;
         this.version = version;
-        this.url = url;
+        setUrl(url);
         if (Util.isNullOrEmpty(dataBaseName)) {
             this.dataBaseName = SQLiteDatabaseManager.getDataBaseName(context);
         }
@@ -50,7 +50,7 @@ public class DBConfig {
     }
 
     public void setUrl(String url) {
-        this.url = url;
+        this.url = url.replaceAll("/$", "");
     }
 
 

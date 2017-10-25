@@ -46,22 +46,22 @@
 		    @Field
 		    public float myFloat;
 		}
-#Initialize database
+# Initialize database
 		DB db = new DB(getApplicationContext());
-#Save
+# Save
 		Marcador t = new Marcador();
 		db.save(t);
-#Update
+# Update
 		t.description="changes";
 		db.save(t);
-#Get by id
+# Get by id
 		Marcador m2 = db.getById(Marcador.class, 1);
-#Get All
+# Get All
 		ArrayList<Marcador> entities = db.getAll(Marcador.class);
 	        for (Marcador entity : entities) {
 	            Log.w(entity.toString());
 	        }
-#Options
+# Options
 	        Options options = new Options();
 	        options.and("description", "");
 	        options.and("code", "");

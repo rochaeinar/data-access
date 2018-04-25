@@ -50,6 +50,9 @@ public class DBConfig {
     }
 
     public void setUrl(String url) {
+        if (url == null) {
+            url = "";
+        }
         this.url = url.replaceAll("/$", "");
     }
 

@@ -91,6 +91,6 @@ public class SQLiteDatabaseManager extends SQLiteOpenHelper {
     }
 
     public static void setOnUpgradeListener(Upgradeable upgradeable) {
-        sqLiteDatabaseManager.upgradeable = upgradeable;
+        SQLiteDatabaseManager.upgradeable = upgradeable;
     }
 }

@@ -3,22 +3,24 @@ package com.erc.dal;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Environment;
 
-import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by einar on 9/6/2015.
  */
 public class SQLiteDatabaseManager extends SQLiteOpenHelper {
 
-    private static Upgradeable upgradeable;
+    private static Map<String, Upgradeable> upgradeableMap = new HashMap<>();
     private static SQLiteDatabaseManager sqLiteDatabaseManager;
     private Context context;
+    private DBConfig dbConfig;
 
     private SQLiteDatabaseManager(DBConfig dbConfigs) {
         super(dbConfigs.getContext(), dbConfigs.getDataBaseName(), null, dbConfigs.getVersion());
         this.context = dbConfigs.getContext();
+        this.dbConfig = dbConfigs;
     }
 
     @Override
@@ -32,8 +34,14 @@ public class SQLiteDatabaseManager extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (upgradeable != null) {
-            upgradeable.onUpgrade(db, oldVersion, newVersion);
+        startUpgrade(db, oldVersion, newVersion, dbConfig);
+    }
+
+    public static void startUpgrade(SQLiteDatabase db, int oldVersion, int newVersion, DBConfig dbConfig) {
+        if (upgradeableMap != null) {
+            if (upgradeableMap.containsKey(getFullDatabaseName(dbConfig))) {
+                upgradeableMap.get(getFullDatabaseName(dbConfig)).onUpgrade(db, oldVersion, newVersion);
+            }
         }
     }
 
@@ -51,7 +59,11 @@ public class SQLiteDatabaseManager extends SQLiteOpenHelper {
                 db = getInstance(dbConfig).getWritableDatabase();
                 db.setLockingEnabled(false);
             } else {
-                db = SQLiteDatabase.openDatabase(dbConfig.getUrl() + "/" + dbConfig.getDataBaseName(), null, SQLiteDatabase.OPEN_READWRITE);
+                db = SQLiteDatabase.openDatabase(getFullDatabaseName(dbConfig), null, SQLiteDatabase.OPEN_READWRITE | SQLiteDatabase.NO_LOCALIZED_COLLATORS | SQLiteDatabase.CREATE_IF_NECESSARY);
+                if (dbConfig.getVersion() != dbConfig.getOldVersion()) {
+                    startUpgrade(db, dbConfig.getOldVersion(), dbConfig.getVersion(), dbConfig);
+                    dbConfig.setOldVersion(dbConfig.getVersion());
+                }
             }
         } catch (Exception e) {
             Log.e("Opening database", e);
@@ -66,7 +78,11 @@ public class SQLiteDatabaseManager extends SQLiteOpenHelper {
                 db = getInstance(dbConfig).getWritableDatabase();
                 db.setLockingEnabled(false);
             } else {
-                db = SQLiteDatabase.openDatabase(dbConfig.getUrl() + "/" + dbConfig.getDataBaseName(), null, SQLiteDatabase.OPEN_READONLY);
+                db = SQLiteDatabase.openDatabase(getFullDatabaseName(dbConfig), null, SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.NO_LOCALIZED_COLLATORS | SQLiteDatabase.CREATE_IF_NECESSARY);
+                if (dbConfig.getVersion() != dbConfig.getOldVersion()) {
+                    startUpgrade(db, dbConfig.getOldVersion(), dbConfig.getVersion(), dbConfig);
+                    dbConfig.setOldVersion(dbConfig.getVersion());
+                }
             }
         } catch (Exception e) {
             Log.e("Opening database", e);
@@ -90,7 +106,13 @@ public class SQLiteDatabaseManager extends SQLiteOpenHelper {
         return dataBaseName;
     }
 
-    public static void setOnUpgradeListener(Upgradeable upgradeable) {
-        SQLiteDatabaseManager.upgradeable = upgradeable;
+    public static void setOnUpgradeListener(Upgradeable upgradeable, DBConfig dbConfig) {
+        if (!upgradeableMap.containsKey(getFullDatabaseName(dbConfig))) {
+            upgradeableMap.put(getFullDatabaseName(dbConfig), upgradeable);
+        }
+    }
+
+    private static String getFullDatabaseName(DBConfig dbConfig) {
+        return dbConfig.getUrl() + "/" + dbConfig.getDataBaseName();
     }
 }

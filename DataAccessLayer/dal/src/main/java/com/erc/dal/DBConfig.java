@@ -41,8 +41,11 @@ public class DBConfig {
         return version;
     }
 
-    public void setVersion(int version) {
-        this.version = version;
+    public int getOldVersion() {
+        return version;
+    }
+
+    public void setOldVersion(int oldVersion) {
     }
 
     public String getUrl() {

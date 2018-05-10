@@ -5,6 +5,14 @@ package com.erc.dal;
  */
 public enum ExpresionOperator {
     EQUALS(" = "),
+    GREATER_THAN(" > "),
+    LESS_THAN(" < "),
+    GREATER_THAN_OR_EQUAL_TO(" >= "),
+    LESS_THAN_OR_EQUAL_TO(" <= "),
+    NOT_EQUAL_TO(" <> "),
+    NOT_LESS_THAN(" !< "),
+    NOT_EQUAL_TO_DIFF(" != "),
+    NOT_GREATER_THAN(" !> "),
     IN(" IN "),
     LIKE(" LIKE ");
 

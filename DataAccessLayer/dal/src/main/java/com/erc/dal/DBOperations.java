@@ -1,10 +1,9 @@
 package com.erc.dal;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -148,7 +147,12 @@ class DBOperations {
                 Object value = null;
                 type = field.getType();
                 currentField = field.getName();
+
                 do {
+                    if (ReflectionHelper.getDataBaseNameOfField(field).equals("rowid")) {
+                        value = -1;
+                        break;
+                    }
                     if (type.equals(String.class)) {
                         value = cursor.getString(cursor.getColumnIndex(ReflectionHelper.getDataBaseNameOfField(field)));
                         break;

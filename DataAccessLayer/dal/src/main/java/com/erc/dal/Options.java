@@ -9,18 +9,22 @@ import java.util.ArrayList;
  */
 public class Options {
 
-
     private String orderBy;
     private String limit;
     private boolean ascending;
     private boolean distinct;
-    private ArrayList<Expresion> expresions;
-    private Class entityClass;
+    private ArrayList<Sentence> expresions;
+    Class entityClass;
     String tableName;
 
 
     public Options() {
-        expresions = new ArrayList<Expresion>();
+        expresions = new ArrayList<Sentence>();
+    }
+
+    public void and(Group group) {
+        group.setLogicalOperator(LogicalOperator.AND);
+        expresions.add(group);
     }
 
     public void and(String fieldName, Object value, ExpresionOperator... expresionOperator) {
@@ -35,6 +39,11 @@ public class Options {
         } else {
             Log.w("Null or empty value on Options.and: " + fieldName + ", " + value);
         }
+    }
+
+    public void or(Group group) {
+        group.setLogicalOperator(LogicalOperator.OR);
+        expresions.add(group);
     }
 
     public void or(String fieldName, Object value, ExpresionOperator... expresionOperator) {
@@ -112,26 +121,37 @@ public class Options {
         return sb.toString();
     }
 
-    private String getExpressions() {
+    public String getExpressions() {
         StringBuffer sb = new StringBuffer();
         if (!Util.isNullOrEmpty(tableName)) {
             int i = 0;
-            for (Expresion e : expresions) {
-                if (i > 0) {
-                    sb.append(e.getLogicalOperator());
-                }
-                try {
-                    if (e.getLeft() instanceof FieldParam) {
-                        Class type = entityClass.getField(e.getLeft().getString()).getType();
-                        sb.append(e.getExpresionString(tableName, HelperDataType.hasCuotes(type)));
-                    } else {
-                        Function function = (Function) e.getLeft();
-                        sb.append(e.getExpresionString(null, HelperDataType.hasCuotes(function.getReturnType())));
+            for (Sentence sentence : expresions) {
+                if (sentence instanceof Expresion) {
+                    Expresion expresion = (Expresion) sentence;
+                    if (i > 0) {
+                        sb.append(expresion.getLogicalOperator());
                     }
-                    i++;
-                } catch (NoSuchFieldException e1) {
-                    Log.e("Invalid Expresion on  getExpressions", e1);
+                    try {
+                        if (expresion.getLeft() instanceof FieldParam) {
+                            Class type = entityClass.getField(expresion.getLeft().getString()).getType();
+                            sb.append(expresion.getExpresionString(tableName, HelperDataType.hasCuotes(type)));
+                        } else {
+                            Function function = (Function) expresion.getLeft();
+                            sb.append(expresion.getExpresionString(null, HelperDataType.hasCuotes(function.getReturnType())));
+                        }
+                    } catch (NoSuchFieldException e1) {
+                        Log.e("Invalid Expresion on getExpressions", e1);
+                    }
+                } else {
+                    Group group = (Group) sentence;
+                    if (i > 0) {
+                        sb.append(group.getLogicalOperator());
+                    }
+                    sb.append(" ( ");
+                    sb.append(group.getExpressions());
+                    sb.append(" ) ");
                 }
+                i++;
             }
         } else {
             Log.w("Null TableName on getExpressions");

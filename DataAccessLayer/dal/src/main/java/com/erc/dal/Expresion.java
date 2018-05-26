@@ -3,7 +3,7 @@ package com.erc.dal;
 /**
  * Created by einar on 10/11/2015.
  */
-public class Expresion {
+public class Expresion extends Sentence {
 
     private ExpresionOperator expresionOperator;
     private LogicalOperator logicalOperator;

@@ -1,12 +1,8 @@
 package com.erc.dal;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * Created by einar on 20-10-15.
@@ -15,8 +11,9 @@ public class DB {
     private DBConfig dbConfig;
     private DBOperations dbOperations;
 
-    public DB(Context context) {
-        this.dbConfig = new DBConfig(context, null, 1, null);
+    public DB(Context context, int... id) {
+        int id_ = id.length == 0 ? 1 : id[0];
+        this.dbConfig = new DBConfig(context, null, 1, null, id_);
         dbOperations = DBOperations.getInstance();
         SQLiteDatabaseManager.openReadOnly(this.dbConfig);
     }

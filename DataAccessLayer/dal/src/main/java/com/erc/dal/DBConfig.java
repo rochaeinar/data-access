@@ -10,11 +10,13 @@ public class DBConfig {
     private int version;
     private String url;
     private Context context;
+    private int id;
 
-    public DBConfig(Context context, String dataBaseName, int version, String url) {
+    public DBConfig(Context context, String dataBaseName, int version, String url, int id) {
         this.context = context;
         this.dataBaseName = dataBaseName;
         this.version = version;
+        this.id = id;
         setUrl(url);
         if (Util.isNullOrEmpty(dataBaseName)) {
             this.dataBaseName = SQLiteDatabaseManager.getDataBaseName(context);

@@ -54,6 +54,10 @@ public class DBConfig {
         return url;
     }
 
+    public int getId() {
+        return id;
+    }
+
     public void setUrl(String url) {
         if (url == null) {
             url = "";

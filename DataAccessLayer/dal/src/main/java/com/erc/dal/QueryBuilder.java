@@ -172,28 +172,28 @@ public class QueryBuilder {
         return res;
     }
 
-    public static String getCreateQuery(Context context, Class type) {
-        StringBuffer sb = new StringBuffer();
-        String packageName = context.getPackageName();
-        try {
-            DexFile df = new DexFile(context.getPackageCodePath());
-            for (Enumeration<String> iter = df.entries(); iter.hasMoreElements(); ) {
-                String className = iter.nextElement();
-                if (className.contains(packageName)) {
-                    try {
-                        Class entity = context.getClassLoader().loadClass(className);
-                        if (entity.isAnnotationPresent(type)) {
-                            sb.append(Constant.CREATE.replaceFirst(Constant.TABLE, geTableName(entity)).
-                                    replaceFirst(Constant.FIELDS, getPairsToCreate(entity)));
-                        }
-                    } catch (ClassNotFoundException e) {
-                        Log.e("Error findSubClasses.ClassNotFoundException", e);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+    public static String getCreateQuery(DBConfig dbConfig, Class type) {
+        StringBuilder sb = new StringBuilder();
+
+        String packageName = dbConfig.getContext().getPackageName();
+
+        if (!Util.isNullOrEmpty(dbConfig.getPackageFilter())) {
+            packageName = dbConfig.getPackageFilter();
         }
+
+        ArrayList<String> findClassesStartWith = DexFileHelper.findClassesStartWith(packageName);
+        for (String className : findClassesStartWith) {
+            try {
+                Class entity = dbConfig.getContext().getClassLoader().loadClass(className);
+                if (entity.isAnnotationPresent(type)) {
+                    sb.append(Constant.CREATE.replaceFirst(Constant.TABLE, geTableName(entity)).
+                            replaceFirst(Constant.FIELDS, getPairsToCreate(entity)));
+                }
+            } catch (ClassNotFoundException e) {
+                Log.e("Error findSubClasses.ClassNotFoundException", e);
+            }
+        }
+
         return sb.toString();
     }
 

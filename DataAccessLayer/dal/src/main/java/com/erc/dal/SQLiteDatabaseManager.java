@@ -26,7 +26,7 @@ public class SQLiteDatabaseManager extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         Log.w("Database created");
-        String sql = QueryBuilder.getCreateQuery(context, Table.class);
+        String sql = QueryBuilder.getCreateQuery(this.dbConfig, Table.class);
         for (String sqlCreate : sql.split(";")) {
             db.execSQL(sqlCreate);
         }

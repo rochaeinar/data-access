@@ -11,6 +11,7 @@ public class DBConfig {
     private String url;
     private Context context;
     private int id;
+    private String packageFilter;
 
     public DBConfig(Context context, String dataBaseName, int version, String url, int id) {
         this.context = context;
@@ -65,5 +66,11 @@ public class DBConfig {
         this.url = url.replaceAll("/$", "");
     }
 
+    public String getPackageFilter() {
+        return packageFilter;
+    }
 
+    public void setPackageFilter(String packageFilter) {
+        this.packageFilter = packageFilter;
+    }
 }

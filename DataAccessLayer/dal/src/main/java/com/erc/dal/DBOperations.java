@@ -11,7 +11,7 @@ import java.util.Date;
  * Created by einar on 10/17/2016.
  */
 class DBOperations {
-
+    SQLiteDatabase db;
     private static DBOperations dbOperations;
 
     private DBOperations() {
@@ -38,13 +38,14 @@ class DBOperations {
                 sql = QueryBuilder.getQueryUpdate(entity);
             }
             execSQL(sql, dbConfig);
+            db.close();
             return entity;
         } else {
             return null;
         }
     }
 
-    public <T> T getById(Class classType, Object id, DBConfig dbConfig) {
+    public synchronized <T> T getById(Class classType, Object id, DBConfig dbConfig) {
         T entity = null;
         String sql = QueryBuilder.getQuery(classType, id);
         if (!Util.isNullOrEmpty(sql)) {
@@ -58,13 +59,14 @@ class DBOperations {
                     Log.e("Fail to fill getById", e);
                 }
             }
+            db.close();
             return entity;
         } else {
             return null;
         }
     }
 
-    public <T> ArrayList<T> getAll(Class classType, DBConfig dbConfig, Options... options) {
+    public synchronized <T> ArrayList<T> getAll(Class classType, DBConfig dbConfig, Options... options) {
         ArrayList<T> entities = new ArrayList<>();
         Options options_ = options.length == 0 ? new Options() : options[0];
         String selectAll = QueryBuilder.getAllQuery(classType);
@@ -80,10 +82,11 @@ class DBOperations {
                 Log.e("Fail to fill getAll", e);
             }
         }
+        db.close();
         return entities;
     }
 
-    public long calculate(Class classType, Aggregation aggregationOperator, DBConfig dbConfig, Options... options) {
+    public synchronized long calculate(Class classType, Aggregation aggregationOperator, DBConfig dbConfig, Options... options) {
         long res = 0;
         try {
             if (aggregationOperator != null) {
@@ -94,6 +97,7 @@ class DBOperations {
                 if (cursor != null && cursor.moveToNext()) {
                     res = cursor.getLong(0);
                 }
+                db.close();
             } else {
                 Log.w("null aggregation Operator on Entity.Calculate");
             }
@@ -106,26 +110,27 @@ class DBOperations {
     public synchronized boolean remove(Class classType, Object id, DBConfig dbConfig) {
         String sql = QueryBuilder.getQueryRemove(classType, id);
         if (!Util.isNullOrEmpty(sql)) {
-            return execSQL(sql, dbConfig);
+            boolean success = execSQL(sql, dbConfig);
+            db.close();
+            return success;
         }
         return false;
     }
 
     private Cursor rawQuery(String sql, DBConfig dbConfig) {
-        SQLiteDatabase db = SQLiteDatabaseManager.openReadOnly(dbConfig);
+        db = SQLiteDatabaseManager.openReadOnly(dbConfig);
         Cursor cursor = null;
         try {
             cursor = db.rawQuery(sql, null);
         } catch (Exception e) {
             Log.e("Failed to execute raw SQL", e);
         } finally {
-
         }
         return cursor;
     }
 
-    public synchronized boolean execSQL(String sql, DBConfig dbConfig) {
-        SQLiteDatabase db = SQLiteDatabaseManager.open(dbConfig);
+    public boolean execSQL(String sql, DBConfig dbConfig) {
+        db = SQLiteDatabaseManager.open(dbConfig);
         boolean res = false;
         try {
             db.execSQL(sql);
@@ -134,7 +139,6 @@ class DBOperations {
         } catch (Exception e) {
             Log.e("Failed to execute SQL", e);
         } finally {
-
         }
         return res;
     }

@@ -5,11 +5,11 @@ package com.erc.dal;
  */
 public class Aggregation {
 
-    public static final String AVG = " AVG(" + Constant.VALUE + ") ";
-    public static final String SUM = " SUM(" + Constant.VALUE + ") ";
-    public static final String MAX = " MAX(" + Constant.VALUE + ") ";
-    public static final String MIN = " MIN(" + Constant.VALUE + ") ";
-    public static final String COUNT = " COUNT(" + Constant.VALUE + ") ";
+    private static final String AVG = " AVG(" + Constant.VALUE + ") ";
+    private static final String SUM = " SUM(" + Constant.VALUE + ") ";
+    private static final String MAX = " MAX(" + Constant.VALUE + ") ";
+    private static final String MIN = " MIN(" + Constant.VALUE + ") ";
+    private static final String COUNT = " COUNT(" + Constant.VALUE + ") ";
 
     private String field;
     private String operator;

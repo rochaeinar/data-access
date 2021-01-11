@@ -36,7 +36,7 @@ public class DB {
         return dbOperations.getAll(classType, this.dbConfig, options);
     }
 
-    public long calculate(Class classType, Aggregation aggregationOperator, Options... options) {
+    public <T> T calculate(Class classType, Aggregation aggregationOperator, Options... options) {
         return dbOperations.calculate(classType, aggregationOperator, this.dbConfig, options);
     }
 

@@ -86,8 +86,8 @@ class DBOperations {
         return entities;
     }
 
-    public synchronized long calculate(Class classType, Aggregation aggregationOperator, DBConfig dbConfig, Options... options) {
-        long res = 0;
+    public synchronized <T> T calculate(Class classType, Aggregation aggregationOperator, DBConfig dbConfig, Options... options) {
+        T res = null;
         try {
             if (aggregationOperator != null) {
                 Options options_ = options.length == 0 ? new Options() : options[0];
@@ -95,7 +95,14 @@ class DBOperations {
                 selectAll = options_.getSql(classType, selectAll, aggregationOperator) + Constant.SEMICOLON;
                 Cursor cursor = rawQuery(selectAll, dbConfig);
                 if (cursor != null && cursor.moveToNext()) {
-                    res = cursor.getLong(0);
+
+                    if (cursor.getType(0) == Cursor.FIELD_TYPE_FLOAT) {
+                        res = (T) new Float(cursor.getFloat(0));
+                    }
+
+                    if (cursor.getType(0) == Cursor.FIELD_TYPE_INTEGER) {
+                        res = (T) new Long(cursor.getLong(0));
+                    }
                 }
                 db.close();
             } else {

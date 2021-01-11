@@ -68,6 +68,8 @@ public class MainActivity extends Activity {
             Log.w(termino1.toString());
         }
 
+        Log.i("newId: " + db.calculate(Marcador.class, Aggregation.max("ID")) + "");
+
     }
 
 

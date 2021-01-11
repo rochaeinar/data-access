@@ -36,7 +36,8 @@ public class QueryBuilder {
 
     private static long generateId(Entity entity, DBOperations db, DBConfig dbConfig) {
         String nameId = getPrimaryKey(entity).getName();
-        return db.calculate(entity.getClass(), Aggregation.max(nameId), dbConfig) + 1;
+        Object calculatedValue = db.calculate(entity.getClass(), Aggregation.max(nameId), dbConfig);
+        return (calculatedValue == null ? 0 : (long) calculatedValue) + 1;
     }
 
     public static Pair getPrimaryKey(Entity entity) {

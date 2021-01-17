@@ -11,9 +11,8 @@ public class DB {
     private DBConfig dbConfig;
     private DBOperations dbOperations;
 
-    public DB(Context context, int... id) {
-        int id_ = id.length == 0 ? 1 : id[0];
-        this.dbConfig = new DBConfig(context, null, 1, null, id_);
+    public DB(Context context) {
+        this.dbConfig = new DBConfig(context, null, 1, null);
         dbOperations = DBOperations.getInstance();
         SQLiteDatabaseManager.openReadOnly(this.dbConfig);
     }
@@ -21,7 +20,6 @@ public class DB {
     public DB(DBConfig dbConfig) {
         this.dbConfig = dbConfig;
         dbOperations = DBOperations.getInstance();
-        SQLiteDatabaseManager.openReadOnly(this.dbConfig);
     }
 
     public synchronized Entity save(Entity entity) {

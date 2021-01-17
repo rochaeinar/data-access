@@ -2,26 +2,36 @@ package com.erc.dal;
 
 import android.content.Context;
 
+import com.erc.dal.upgrade.Upgradeable;
+
 /**
  * Created by einar on 10/18/2015.
  */
 public class DBConfig {
     private String dataBaseName;
     private int version;
+    private int currentVersionCache;
     private String url;
     private Context context;
-    private int id;
     private String packageFilter;
+    private Upgradeable upgradeable;
 
-    public DBConfig(Context context, String dataBaseName, int version, String url, int id) {
+    public DBConfig(Context context, String dataBaseName, int version, String url) {
         this.context = context;
         this.dataBaseName = dataBaseName;
         this.version = version;
-        this.id = id;
         setUrl(url);
         if (Util.isNullOrEmpty(dataBaseName)) {
             this.dataBaseName = SQLiteDatabaseManager.getDataBaseName(context);
         }
+    }
+
+    public Upgradeable getUpgradeable() {
+        return upgradeable;
+    }
+
+    public void setUpgradeable(Upgradeable upgradeable) {
+        this.upgradeable = upgradeable;
     }
 
     public Context getContext() {
@@ -44,19 +54,16 @@ public class DBConfig {
         return version;
     }
 
-    public int getOldVersion() {
-        return version;
+    public int getCurrentVersionCache() {
+        return currentVersionCache;
     }
 
-    public void setOldVersion(int oldVersion) {
+    public void setCurrentVersionCache(int currentVersionCache) {
+        this.currentVersionCache = currentVersionCache;
     }
 
     public String getUrl() {
         return url;
-    }
-
-    public int getId() {
-        return id;
     }
 
     public void setUrl(String url) {

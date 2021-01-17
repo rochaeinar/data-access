@@ -1,4 +1,4 @@
-package com.erc.dal;
+package com.erc.dal.upgrade;
 
 import android.database.sqlite.SQLiteDatabase;
 

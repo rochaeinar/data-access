@@ -4,6 +4,9 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.erc.dal.upgrade.UpgradeHelper;
+import com.erc.dal.upgrade.Upgradeable;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,10 +63,7 @@ public class SQLiteDatabaseManager extends SQLiteOpenHelper {
                 db.setLockingEnabled(false);
             } else {
                 db = SQLiteDatabase.openDatabase(getFullDatabaseName(dbConfig), null, SQLiteDatabase.OPEN_READWRITE | SQLiteDatabase.NO_LOCALIZED_COLLATORS | SQLiteDatabase.CREATE_IF_NECESSARY);
-                if (dbConfig.getVersion() != dbConfig.getOldVersion()) {
-                    startUpgrade(db, dbConfig.getOldVersion(), dbConfig.getVersion(), dbConfig);
-                    dbConfig.setOldVersion(dbConfig.getVersion());
-                }
+                UpgradeHelper.verifyUpgrade(dbConfig, db);
             }
         } catch (Exception e) {
             Log.e("Opening database", e);
@@ -79,10 +79,7 @@ public class SQLiteDatabaseManager extends SQLiteOpenHelper {
                 db.setLockingEnabled(false);
             } else {
                 db = SQLiteDatabase.openDatabase(getFullDatabaseName(dbConfig), null, SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.NO_LOCALIZED_COLLATORS | SQLiteDatabase.CREATE_IF_NECESSARY);
-                if (dbConfig.getVersion() != dbConfig.getOldVersion()) {
-                    startUpgrade(db, dbConfig.getOldVersion(), dbConfig.getVersion(), dbConfig);
-                    dbConfig.setOldVersion(dbConfig.getVersion());
-                }
+                UpgradeHelper.verifyUpgrade(dbConfig, db);
             }
         } catch (Exception e) {
             Log.e("Opening database", e);

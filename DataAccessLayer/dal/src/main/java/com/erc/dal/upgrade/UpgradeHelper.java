@@ -42,7 +42,7 @@ public class UpgradeHelper {
         if (tableExist) {
             cursor = db.rawQuery("SELECT * FROM METADATA", null);
             if (cursor != null && cursor.moveToNext()) {
-                int version = Integer.parseInt(cursor.getString(0));
+                int version = Integer.parseInt(cursor.getString(cursor.getColumnIndex("VALUE")));
                 cursor.close();
                 return version;
             }

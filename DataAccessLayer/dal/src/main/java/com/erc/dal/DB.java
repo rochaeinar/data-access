@@ -1,6 +1,9 @@
 package com.erc.dal;
 
 import android.content.Context;
+import android.database.Cursor;
+
+import com.erc.dal.upgrade.DBConfig;
 
 import java.util.ArrayList;
 
@@ -44,6 +47,10 @@ public class DB {
 
     public synchronized boolean execSQL(String sql) {
         return dbOperations.execSQL(sql, this.dbConfig);
+    }
+
+    public synchronized Cursor rawQuery(String sql) {
+        return dbOperations.rawQuery(sql, this.dbConfig);
     }
 
 }

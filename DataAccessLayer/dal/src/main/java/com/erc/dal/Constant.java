@@ -23,7 +23,7 @@ public class Constant {
     public static final String INSERT = "INSERT INTO " + TABLE + " (" + FIELDS + ") VALUES (" + VALUES + ");";
     public static final String UPDATE = "UPDATE " + TABLE + " SET " + PAIRS + " WHERE " + KEYS + ";";
     public static final String DELETE = "DELETE FROM " + TABLE + " WHERE " + KEYS + ";";
-    public static final String CREATE = "CREATE TABLE  " + TABLE + " (" + FIELDS + ");";
+    public static final String CREATE = "CREATE TABLE IF NOT EXISTS " + TABLE + " (" + FIELDS + ");";
     public static final String ORDER_BY = " ORDER BY ";
     public static final String DESC = " DESC ";
     public static final String ASC = " ASC ";

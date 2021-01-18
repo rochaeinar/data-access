@@ -3,26 +3,24 @@ package com.erc.dal.upgrade;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.erc.dal.DBConfig;
 import com.erc.dal.SQLiteDatabaseManager;
 
 public class UpgradeHelper {
 
     public static void verifyUpgrade(DBConfig dbConfig, SQLiteDatabase db) {
-        if (dbConfig.getUpgradeable() != null) {
+        if (dbConfig.getUpgradeListener() != null) {
             int currentVersion = UpgradeHelper.getCurrentVersion(db, dbConfig);
 
             if (dbConfig.getVersion() != currentVersion) {
                 if (db.isReadOnly()) {
-                    db.close();
-                    db = SQLiteDatabaseManager.open(dbConfig);
+                    SQLiteDatabaseManager.open(dbConfig);
                 } else {
                     UpgradeHelper.createMetadataStructure(db);
-                    dbConfig.getUpgradeable().onUpgrade(db, currentVersion, dbConfig.getVersion());
+                    dbConfig.getUpgradeListener().onUpgrade(db, currentVersion, dbConfig.getVersion());
                     UpgradeHelper.updateVersion(db, dbConfig.getVersion());
-                    dbConfig.setCurrentVersionCache(dbConfig.getVersion());
                 }
             }
+            dbConfig.setCurrentVersionCache(dbConfig.getVersion());
         }
     }
 

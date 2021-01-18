@@ -1,8 +1,9 @@
-package com.erc.dal;
+package com.erc.dal.upgrade;
 
 import android.content.Context;
 
-import com.erc.dal.upgrade.Upgradeable;
+import com.erc.dal.SQLiteDatabaseManager;
+import com.erc.dal.Util;
 
 /**
  * Created by einar on 10/18/2015.
@@ -11,10 +12,11 @@ public class DBConfig {
     private String dataBaseName;
     private int version;
     private int currentVersionCache;
+    private long tableCountCache;
     private String url;
     private Context context;
     private String packageFilter;
-    private Upgradeable upgradeable;
+    private UpgradeListener upgradeListener;
 
     public DBConfig(Context context, String dataBaseName, int version, String url) {
         this.context = context;
@@ -26,12 +28,12 @@ public class DBConfig {
         }
     }
 
-    public Upgradeable getUpgradeable() {
-        return upgradeable;
+    public UpgradeListener getUpgradeListener() {
+        return upgradeListener;
     }
 
-    public void setUpgradeable(Upgradeable upgradeable) {
-        this.upgradeable = upgradeable;
+    public void setOnUpgradeListener(UpgradeListener upgradeListener) {
+        this.upgradeListener = upgradeListener;
     }
 
     public Context getContext() {
@@ -54,12 +56,20 @@ public class DBConfig {
         return version;
     }
 
-    public int getCurrentVersionCache() {
+    int getCurrentVersionCache() {
         return currentVersionCache;
     }
 
-    public void setCurrentVersionCache(int currentVersionCache) {
+    void setCurrentVersionCache(int currentVersionCache) {
         this.currentVersionCache = currentVersionCache;
+    }
+
+    public long getTableCountCache() {
+        return tableCountCache;
+    }
+
+    public void setTableCountCache(long tableCountCache) {
+        this.tableCountCache = tableCountCache;
     }
 
     public String getUrl() {

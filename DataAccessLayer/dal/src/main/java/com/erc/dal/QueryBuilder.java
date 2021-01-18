@@ -1,14 +1,11 @@
 package com.erc.dal;
 
-import android.content.Context;
 import android.text.TextUtils;
 
-import java.io.IOException;
+import com.erc.dal.upgrade.DBConfig;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Enumeration;
-
-import dalvik.system.DexFile;
 
 /**
  * Created by einar on 8/6/2015.

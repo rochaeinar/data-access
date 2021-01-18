@@ -1,5 +1,7 @@
 package com.erc.dal;
 
+import com.erc.dal.upgrade.DBConfig;
+
 import java.util.HashMap;
 
 /**
@@ -8,8 +10,8 @@ import java.util.HashMap;
 
 public class DBs {
     private HashMap<String, DB> dbsMap;
-    private static DBs dbs = null;
 
+    private static DBs dbs = null;
     public static DBs getInstance() {
 
         if (dbs == null) {

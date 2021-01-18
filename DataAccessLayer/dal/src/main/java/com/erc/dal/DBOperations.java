@@ -3,6 +3,8 @@ package com.erc.dal;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.erc.dal.upgrade.DBConfig;
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
@@ -124,7 +126,7 @@ class DBOperations {
         return false;
     }
 
-    private Cursor rawQuery(String sql, DBConfig dbConfig) {
+    public Cursor rawQuery(String sql, DBConfig dbConfig) {
         db = SQLiteDatabaseManager.openReadOnly(dbConfig);
         Cursor cursor = null;
         try {

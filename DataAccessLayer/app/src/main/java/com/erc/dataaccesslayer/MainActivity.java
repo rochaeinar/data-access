@@ -1,16 +1,16 @@
 package com.erc.dataaccesslayer;
 
 import android.app.Activity;
-import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.erc.dal.Aggregation;
 import com.erc.dal.DB;
-import com.erc.dal.DBConfig;
 import com.erc.dal.Log;
 import com.erc.dal.Options;
+import com.erc.dal.upgrade.DBConfig;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,15 +72,28 @@ public class MainActivity extends Activity {
 
         Log.i("newId: " + db.calculate(Marcador.class, Aggregation.max("ID")) + "");
 
-        initExternalDbFile(getApplicationContext(), Util.getAppPath(getApplicationContext()), "external.db");
-        DBConfig dbConfig = new DBConfig(getApplicationContext(), "external.db", 1, Util.getAppPath(getApplicationContext()));
-        dbConfig.setUpgradeable(new UpgradeExample());
+        //Upgrade default DB example
+        DBConfig dbConfig = new DBConfig(getApplicationContext(), "", 1, "");
+        dbConfig.setOnUpgradeListener(new UpgradeExample());
+        db = new DB(dbConfig);
+        db.getAll(Termino.class).size();
+        showTableStructure(db, "SETTINGS");
+
+
+        //Upgrade external DB example
+        dbConfig = new DBConfig(getApplicationContext(), "external.db", 1, Util.getAppPath(getApplicationContext()));
+        dbConfig.setOnUpgradeListener(new UpgradeExample());
         DB externalDb = new DB(dbConfig);
-
-        Log.w(externalDb.getAll(SETTINGS.class).size() + "");
-
+        externalDb.getAll(SETTINGS.class);
+        showTableStructure(externalDb, "SETTINGS");
     }
 
+    private void showTableStructure(DB db, String tableName) {
+        Cursor cursor = db.rawQuery("PRAGMA table_info(" + tableName + ");");
+        while (cursor != null && cursor.moveToNext()) {
+            Log.w(cursor.getString(cursor.getColumnIndex("name")));
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -102,14 +115,5 @@ public class MainActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private static void initExternalDbFile(Context context, String url, String databaseName) {
-
-        String dbPath = url + databaseName;
-        java.io.File positions = new java.io.File(dbPath);
-        if (!positions.exists()) {
-            Util.copyRawFileToSdCard(R.raw.external, dbPath, context);
-        }
     }
 }

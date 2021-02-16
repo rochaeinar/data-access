@@ -17,24 +17,30 @@ import java.util.Arrays;
 
 
 public class MainActivity extends Activity {
+    long startTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        DB db = new DB(getApplicationContext());
 
         Marcador t = new Marcador();
         t.id = 7;
+        DB db = new DB(getApplicationContext());
+        measurement("save");
         db.save(t);
+        measurement("save end");
 
         Marcador m2 = db.getById(Marcador.class, 7);
+        measurement("getById end");
         if (m2 != null) {
             Log.w(m2.toString());
         }
 
+        measurement("getAll start");
         ArrayList<Marcador> entities = db.getAll(Marcador.class);
+        measurement("getAll end");
         for (Marcador entity : entities) {
             Log.w(entity.toString());
         }
@@ -48,12 +54,14 @@ public class MainActivity extends Activity {
         options.distinct(true);
         options.in("id", new ArrayList(Arrays.asList(5, 7)));
         options.limit(5);
+        measurement("getAll options start");
         entities = db.getAll(Marcador.class, options);
+        measurement("getAll options end");
         for (Marcador entity : entities) {
             Log.w(entity.toString());
         }
 
-        Log.i("count: " + db.calculate(Marcador.class, Aggregation.count()) + "");
+        /*Log.i("count: " + db.calculate(Marcador.class, Aggregation.count()) + "");
 
         Termino termino = new Termino();
         db.save(termino);
@@ -70,22 +78,37 @@ public class MainActivity extends Activity {
             Log.w(termino1.toString());
         }
 
-        Log.i("newId: " + db.calculate(Marcador.class, Aggregation.max("ID")) + "");
+        Log.i("newId: " + db.calculate(Marcador.class, Aggregation.max("ID")) + "");*/
 
+        measurement("Upgrade start");
         //Upgrade default DB example
         DBConfig dbConfig = new DBConfig(getApplicationContext(), "", 1, "");
         dbConfig.setOnUpgradeListener(new UpgradeExample());
         db = new DB(dbConfig);
         db.getAll(Termino.class).size();
+        measurement("Upgrade end");
         showTableStructure(db, "SETTINGS");
 
 
+        measurement("Upgrade external start");
         //Upgrade external DB example
         dbConfig = new DBConfig(getApplicationContext(), "external.db", 1, Util.getAppPath(getApplicationContext()));
         dbConfig.setOnUpgradeListener(new UpgradeExample());
         DB externalDb = new DB(dbConfig);
         externalDb.getAll(SETTINGS.class);
+        measurement("Upgrade external end");
         showTableStructure(externalDb, "SETTINGS");
+
+
+        Log.w("DB_TIME endTime: " + (System.nanoTime() - startTime));
+    }
+
+    private void measurement(String tag) {
+        long currentTime = System.nanoTime();
+        if (startTime != 0) {
+            Log.w("DB_TIME " + tag + ": " + java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(currentTime - startTime));
+        }
+        startTime = currentTime;
     }
 
     private void showTableStructure(DB db, String tableName) {

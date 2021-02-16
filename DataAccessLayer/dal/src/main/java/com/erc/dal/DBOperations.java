@@ -40,7 +40,9 @@ class DBOperations {
                 sql = QueryBuilder.getQueryUpdate(entity);
             }
             execSQL(sql, dbConfig);
-            db.close();
+            if (db != null && db.isOpen()) {
+                db.close();
+            }
             return entity;
         } else {
             return null;
@@ -61,7 +63,9 @@ class DBOperations {
                     Log.e("Fail to fill getById", e);
                 }
             }
-            db.close();
+            if (db != null && db.isOpen()) {
+                db.close();
+            }
             return entity;
         } else {
             return null;
@@ -84,7 +88,9 @@ class DBOperations {
                 Log.e("Fail to fill getAll", e);
             }
         }
-        db.close();
+        if (db != null && db.isOpen()) {
+            db.close();
+        }
         return entities;
     }
 
@@ -106,7 +112,9 @@ class DBOperations {
                         res = (T) new Long(cursor.getLong(0));
                     }
                 }
-                db.close();
+                if (db != null && db.isOpen()) {
+                    db.close();
+                }
             } else {
                 Log.w("null aggregation Operator on Entity.Calculate");
             }
@@ -120,7 +128,9 @@ class DBOperations {
         String sql = QueryBuilder.getQueryRemove(classType, id);
         if (!Util.isNullOrEmpty(sql)) {
             boolean success = execSQL(sql, dbConfig);
-            db.close();
+            if (db != null && db.isOpen()) {
+                db.close();
+            }
             return success;
         }
         return false;

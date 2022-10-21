@@ -4,7 +4,13 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/DataAccessLayer.iml" filepath="$PROJECT_DIR$/DataAccessLayer.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/DataAccessLayer.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/DataAccessLayer.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/DataAccessLayer.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/DataAccessLayer.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/DataAccessLayer.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/DataAccessLayer.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/DataAccessLayer.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/DataAccessLayer.app.unitTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/dal/DataAccessLayer.dal.iml" filepath="$PROJECT_DIR$/.idea/modules/dal/DataAccessLayer.dal.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dal/DataAccessLayer.dal.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/dal/DataAccessLayer.dal.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dal/DataAccessLayer.dal.main.iml" filepath="$PROJECT_DIR$/.idea/modules/dal/DataAccessLayer.dal.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dal/DataAccessLayer.dal.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/dal/DataAccessLayer.dal.unitTest.iml" />
     </modules>
   </component>
 </project>

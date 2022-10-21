@@ -1,19 +1,20 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 32
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 29
-        versionCode 24
-        versionName "1.0.24"
+        targetSdkVersion 32
+        versionCode 25
+        versionName "1.0.25"
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    namespace 'com.erc.dal'
 }
 
 dependencies {

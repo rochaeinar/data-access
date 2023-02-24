@@ -1,12 +1,12 @@
 package com.erc.dataaccesslayer;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.erc.dal.Aggregation;
 import com.erc.dal.DB;
 import com.erc.dal.Log;
 import com.erc.dal.Options;
@@ -111,10 +111,13 @@ public class MainActivity extends Activity {
         startTime = currentTime;
     }
 
+    @SuppressLint("Range")
     private void showTableStructure(DB db, String tableName) {
         Cursor cursor = db.rawQuery("PRAGMA table_info(" + tableName + ");");
         while (cursor != null && cursor.moveToNext()) {
-            Log.w(cursor.getString(cursor.getColumnIndex("name")));
+            if (cursor.getColumnIndex("name") >= 0) {
+                Log.w(cursor.getString(cursor.getColumnIndex("name")));
+            }
         }
     }
 

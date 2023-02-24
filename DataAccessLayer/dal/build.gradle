@@ -14,7 +14,17 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
+//    signingConfigs {
+//        debug {
+//            storeFile file(keystoreProperties['storeFile'])
+//            keyAlias keystoreProperties['keyAlias']
+//            keyPassword keystoreProperties['storePassword']
+//            storePassword keystoreProperties['keyPassword']
+//        }
+//        release {
+//            storeFile file(keystoreProperties['storeFile'])
+//        }
+//    }
     namespace 'com.erc.dal'
     lint {
         abortOnError false

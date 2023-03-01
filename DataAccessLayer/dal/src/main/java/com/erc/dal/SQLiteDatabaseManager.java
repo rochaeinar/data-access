@@ -42,8 +42,7 @@ public class SQLiteDatabaseManager extends SQLiteOpenHelper {
         return sqLiteDatabaseManager;
     }
 
-    public static SQLiteDatabase open(DBConfig dbConfig) {
-        SQLiteDatabase db = null;
+    public synchronized static SQLiteDatabase open(DBConfig dbConfig, SQLiteDatabase db) {
         try {
             if (Util.isNullOrEmpty(dbConfig.getUrl())) {
                 db = getInstance(dbConfig).getWritableDatabase();
@@ -52,7 +51,7 @@ public class SQLiteDatabaseManager extends SQLiteOpenHelper {
                 db = SQLiteDatabase.openDatabase(getFullDatabaseName(dbConfig), null, SQLiteDatabase.OPEN_READWRITE | SQLiteDatabase.NO_LOCALIZED_COLLATORS | SQLiteDatabase.CREATE_IF_NECESSARY);
             }
             if (CreatorHelper.createTables(dbConfig, db)) {
-                return open(dbConfig);
+                return open(dbConfig, db);
             }
             UpgradeHelper.verifyUpgrade(dbConfig, db);
         } catch (Exception e) {
@@ -61,8 +60,7 @@ public class SQLiteDatabaseManager extends SQLiteOpenHelper {
         return db;
     }
 
-    public static SQLiteDatabase openReadOnly(DBConfig dbConfig) {
-        SQLiteDatabase db = null;
+    public synchronized static SQLiteDatabase openReadOnly(DBConfig dbConfig, SQLiteDatabase db) {
         try {
             if (Util.isNullOrEmpty(dbConfig.getUrl())) {
                 db = getInstance(dbConfig).getReadableDatabase();
@@ -71,23 +69,13 @@ public class SQLiteDatabaseManager extends SQLiteOpenHelper {
                 db = SQLiteDatabase.openDatabase(getFullDatabaseName(dbConfig), null, SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.NO_LOCALIZED_COLLATORS | SQLiteDatabase.CREATE_IF_NECESSARY);
             }
             if (CreatorHelper.createTables(dbConfig, db)) {
-                return openReadOnly(dbConfig);
+                return openReadOnly(dbConfig, db);
             }
             UpgradeHelper.verifyUpgrade(dbConfig, db);
         } catch (Exception e) {
             Log.e("Opening database", e);
         }
         return db;
-    }
-
-    public static void closeDb() {
-        try {
-            if (sqLiteDatabaseManager != null) {
-                sqLiteDatabaseManager.close();
-            }
-        } catch (Exception e) {
-            Log.e("Closing data base", e);
-        }
     }
 
     public static String getDataBaseName(Context context) {

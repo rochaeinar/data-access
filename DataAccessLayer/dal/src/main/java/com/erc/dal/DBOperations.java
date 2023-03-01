@@ -19,6 +19,11 @@ class DBOperations {
     private DBOperations() {
     }
 
+    public void open(DBConfig dbConfig){
+        db = SQLiteDatabaseManager.open(dbConfig, db);
+        closeDb(db);
+    }
+
     public static DBOperations getInstance() {
         if (dbOperations == null) {
             dbOperations = new DBOperations();
@@ -40,9 +45,7 @@ class DBOperations {
                 sql = QueryBuilder.getQueryUpdate(entity);
             }
             execSQL(sql, dbConfig);
-            if (db != null && db.isOpen()) {
-                db.close();
-            }
+            closeDb(db);
             return entity;
         } else {
             return null;
@@ -63,9 +66,8 @@ class DBOperations {
                     Log.e("Fail to fill getById", e);
                 }
             }
-            if (db != null && db.isOpen()) {
-                db.close();
-            }
+            closeCursor(cursor);
+            closeDb(db);
             return entity;
         } else {
             return null;
@@ -88,9 +90,8 @@ class DBOperations {
                 Log.e("Fail to fill getAll", e);
             }
         }
-        if (db != null && db.isOpen()) {
-            db.close();
-        }
+        closeCursor(cursor);
+        closeDb(db);
         return entities;
     }
 
@@ -112,9 +113,8 @@ class DBOperations {
                         res = (T) new Long(cursor.getLong(0));
                     }
                 }
-                if (db != null && db.isOpen()) {
-                    db.close();
-                }
+                closeCursor(cursor);
+                closeDb(db);
             } else {
                 Log.w("null aggregation Operator on Entity.Calculate");
             }
@@ -128,16 +128,14 @@ class DBOperations {
         String sql = QueryBuilder.getQueryRemove(classType, id);
         if (!Util.isNullOrEmpty(sql)) {
             boolean success = execSQL(sql, dbConfig);
-            if (db != null && db.isOpen()) {
-                db.close();
-            }
+            closeDb(db);
             return success;
         }
         return false;
     }
 
     public Cursor rawQuery(String sql, DBConfig dbConfig) {
-        db = SQLiteDatabaseManager.openReadOnly(dbConfig);
+        db = SQLiteDatabaseManager.openReadOnly(dbConfig, db);
         Cursor cursor = null;
         try {
             cursor = db.rawQuery(sql, null);
@@ -149,7 +147,7 @@ class DBOperations {
     }
 
     public boolean execSQL(String sql, DBConfig dbConfig) {
-        db = SQLiteDatabaseManager.open(dbConfig);
+        db = SQLiteDatabaseManager.open(dbConfig, db);
         boolean res = false;
         try {
             db.execSQL(sql);
@@ -224,4 +222,16 @@ class DBOperations {
         }
     }
 
+    private void closeCursor(Cursor cursor) {
+        if (cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
+    }
+
+    private void closeDb(SQLiteDatabase db) {
+        if (db != null && db.isOpen()) {
+            db.close();
+            db.releaseReference();
+        }
+    }
 }

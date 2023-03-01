@@ -1,12 +1,17 @@
 apply plugin: 'com.android.library'
 
+// Load keystore
+def keystorePropertiesFile = rootProject.file("keystore.properties");
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
 android {
     compileSdkVersion 33
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 33
-        versionCode 26
-        versionName "1.0.26"
+        versionCode 27
+        versionName "1.0.27"
     }
     buildTypes {
         release {

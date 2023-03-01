@@ -17,12 +17,13 @@ public class DB {
     public DB(Context context) {
         this.dbConfig = new DBConfig(context, null, 1, null);
         dbOperations = DBOperations.getInstance();
-        SQLiteDatabaseManager.openReadOnly(this.dbConfig);
+        dbOperations.open(this.dbConfig);
     }
 
     public DB(DBConfig dbConfig) {
         this.dbConfig = dbConfig;
         dbOperations = DBOperations.getInstance();
+        dbOperations.open(this.dbConfig);
     }
 
     public synchronized Entity save(Entity entity) {
@@ -52,5 +53,4 @@ public class DB {
     public synchronized Cursor rawQuery(String sql) {
         return dbOperations.rawQuery(sql, this.dbConfig);
     }
-
 }

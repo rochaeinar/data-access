@@ -7,13 +7,13 @@ import com.erc.dal.SQLiteDatabaseManager;
 
 public class UpgradeHelper {
 
-    public static void verifyUpgrade(DBConfig dbConfig, SQLiteDatabase db) {
+    public static synchronized void verifyUpgrade(DBConfig dbConfig, SQLiteDatabase db) {
         if (dbConfig.getUpgradeListener() != null) {
             int currentVersion = UpgradeHelper.getCurrentVersion(db, dbConfig);
 
             if (dbConfig.getVersion() != currentVersion) {
                 if (db.isReadOnly()) {
-                    SQLiteDatabaseManager.open(dbConfig);
+                    db = SQLiteDatabaseManager.open(dbConfig, db);
                 } else {
                     UpgradeHelper.createMetadataStructure(db);
                     dbConfig.getUpgradeListener().onUpgrade(db, currentVersion, dbConfig.getVersion());
@@ -34,7 +34,9 @@ public class UpgradeHelper {
         Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='METADATA';", null);
         if (cursor != null && cursor.moveToNext()) {
             tableExist = cursor.getLong(0) > 0;
-            cursor.close();
+            if (!cursor.isClosed()) {
+                cursor.close();
+            }
         }
 
         if (tableExist) {
@@ -58,7 +60,9 @@ public class UpgradeHelper {
         long count = 0;
         if (cursor != null && cursor.moveToNext()) {
             count = cursor.getLong(0);
-            cursor.close();
+            if (!cursor.isClosed()) {
+                cursor.close();
+            }
         }
 
         if (count == 0) {

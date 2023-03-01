@@ -15,7 +15,7 @@ public class CreatorHelper {
         long numberOfTables = getNumberOfTables(db, dbConfig);
         if (numberOfTables == 0) {
             if (db.isReadOnly()) {
-                SQLiteDatabaseManager.open(dbConfig);
+                SQLiteDatabaseManager.open(dbConfig, db);
             } else {
                 String sql = QueryBuilder.getCreateQuery(dbConfig, Table.class);
                 Log.w("Database created: " + sql);
@@ -37,7 +37,9 @@ public class CreatorHelper {
             Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND NAME <> 'android_metadata';", null);
             if (cursor != null && cursor.moveToNext()) {
                 numberOfTables = cursor.getLong(0);
-                cursor.close();
+                if (!cursor.isClosed()) {
+                    cursor.close();
+                }
             }
         }
 

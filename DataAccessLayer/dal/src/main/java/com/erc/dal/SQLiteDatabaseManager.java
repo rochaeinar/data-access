@@ -9,6 +9,7 @@ import com.erc.dal.upgrade.DBConfig;
 import com.erc.dal.upgrade.UpgradeHelper;
 import com.erc.dal.upgrade.UpgradeListener;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,6 +49,7 @@ public class SQLiteDatabaseManager extends SQLiteOpenHelper {
                 db = getInstance(dbConfig).getWritableDatabase();
                 db.setLockingEnabled(false);
             } else {
+                createDirectory(dbConfig);
                 db = SQLiteDatabase.openDatabase(getFullDatabaseName(dbConfig), null, SQLiteDatabase.OPEN_READWRITE | SQLiteDatabase.NO_LOCALIZED_COLLATORS | SQLiteDatabase.CREATE_IF_NECESSARY);
             }
             if (CreatorHelper.createTables(dbConfig, db)) {
@@ -58,6 +60,13 @@ public class SQLiteDatabaseManager extends SQLiteOpenHelper {
             Log.e("Opening database", e);
         }
         return db;
+    }
+
+    private static void createDirectory(DBConfig dbConfig) {
+        File dir = new File(dbConfig.getUrl());
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
     }
 
     public synchronized static SQLiteDatabase openReadOnly(DBConfig dbConfig, SQLiteDatabase db) {

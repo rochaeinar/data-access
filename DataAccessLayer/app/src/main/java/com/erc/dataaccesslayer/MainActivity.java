@@ -92,7 +92,7 @@ public class MainActivity extends Activity {
 
         measurement("Upgrade external start");
         //Upgrade external DB example
-        dbConfig = new DBConfig(getApplicationContext(), "external.db", 1, Util.getAppPath(getApplicationContext()));
+        dbConfig = new DBConfig(getApplicationContext(), "external.db", 1, Util.getAppPath(getApplicationContext()) + "test");
         dbConfig.setOnUpgradeListener(new UpgradeExample());
         DB externalDb = new DB(dbConfig);
         externalDb.getAll(SETTINGS.class);
@@ -101,7 +101,7 @@ public class MainActivity extends Activity {
         externalDb.save(new SETTINGS());
 
         Log.w("External Upgrade existing db");
-        dbConfig = new DBConfig(getApplicationContext(), "external.db", (int)(Math.random() * 1000000), Util.getAppPath(getApplicationContext()));
+        dbConfig = new DBConfig(getApplicationContext(), "external.db", (int) (Math.random() * 1000000), Util.getAppPath(getApplicationContext()) + "test");
         dbConfig.setOnUpgradeListener(new UpgradeExample());
         externalDb = new DB(dbConfig);
         externalDb.getAll(SETTINGS_UPGRADE.class);

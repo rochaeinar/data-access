@@ -1,17 +1,12 @@
 apply plugin: 'com.android.library'
 
-// Load keystore
-def keystorePropertiesFile = rootProject.file("keystore.properties");
-def keystoreProperties = new Properties()
-keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-
 android {
     compileSdkVersion 33
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 33
-        versionCode 27
-        versionName "1.0.27"
+        versionCode 28
+        versionName "1.0.28"
     }
     buildTypes {
         release {
@@ -19,17 +14,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-//    signingConfigs {
-//        debug {
-//            storeFile file(keystoreProperties['storeFile'])
-//            keyAlias keystoreProperties['keyAlias']
-//            keyPassword keystoreProperties['storePassword']
-//            storePassword keystoreProperties['keyPassword']
-//        }
-//        release {
-//            storeFile file(keystoreProperties['storeFile'])
-//        }
-//    }
     namespace 'com.erc.dal'
     lint {
         abortOnError false

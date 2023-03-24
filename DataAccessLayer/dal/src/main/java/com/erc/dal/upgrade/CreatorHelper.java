@@ -10,12 +10,12 @@ import com.erc.dal.Table;
 
 public class CreatorHelper {
 
-    public static boolean createTables(DBConfig dbConfig, SQLiteDatabase db) {
+    public static boolean createTables(DBConfig dbConfig, SQLiteDatabase db, SQLiteDatabaseManager sqLiteDatabaseManager) {
         boolean whereCreated = false;
         long numberOfTables = getNumberOfTables(db, dbConfig);
         if (numberOfTables == 0) {
             if (db.isReadOnly()) {
-                SQLiteDatabaseManager.open(dbConfig, db);
+                sqLiteDatabaseManager.open(dbConfig, db);
             } else {
                 String sql = QueryBuilder.getCreateQuery(dbConfig, Table.class);
                 Log.w("Database created: " + sql);

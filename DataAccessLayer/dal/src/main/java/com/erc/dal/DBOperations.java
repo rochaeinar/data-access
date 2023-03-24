@@ -14,21 +14,18 @@ import java.util.Date;
  */
 class DBOperations {
     SQLiteDatabase db;
-    private static DBOperations dbOperations;
+    SQLiteDatabaseManager sqLiteDatabaseManager;
+    DBConfig dbConfig;
 
-    private DBOperations() {
+    public DBOperations(DBConfig dbConfig) {
+        sqLiteDatabaseManager = new SQLiteDatabaseManager(dbConfig);
+        this.dbConfig = dbConfig;
     }
 
-    public void open(DBConfig dbConfig){
-        db = SQLiteDatabaseManager.open(dbConfig, db);
+    public synchronized void initialize() {
+        dbConfig.clearCache();
+        db = sqLiteDatabaseManager.open(dbConfig, db);
         closeDb(db);
-    }
-
-    public static DBOperations getInstance() {
-        if (dbOperations == null) {
-            dbOperations = new DBOperations();
-        }
-        return dbOperations;
     }
 
     public synchronized Entity save(Entity entity, DBConfig dbConfig) {
@@ -135,7 +132,7 @@ class DBOperations {
     }
 
     public Cursor rawQuery(String sql, DBConfig dbConfig) {
-        db = SQLiteDatabaseManager.openReadOnly(dbConfig, db);
+        db = sqLiteDatabaseManager.openReadOnly(dbConfig, db);
         Cursor cursor = null;
         try {
             cursor = db.rawQuery(sql, null);
@@ -147,7 +144,7 @@ class DBOperations {
     }
 
     public boolean execSQL(String sql, DBConfig dbConfig) {
-        db = SQLiteDatabaseManager.open(dbConfig, db);
+        db = sqLiteDatabaseManager.open(dbConfig, db);
         boolean res = false;
         try {
             db.execSQL(sql);
@@ -160,7 +157,7 @@ class DBOperations {
         return res;
     }
 
-    private static void fillFields(ArrayList<java.lang.reflect.Field> fields, Cursor cursor, Object entity) throws IllegalAccessException {
+    private void fillFields(ArrayList<java.lang.reflect.Field> fields, Cursor cursor, Object entity) throws IllegalAccessException {
         Type type;
         String currentField = "null";
         try {

@@ -92,7 +92,7 @@ public class DBConfig {
     }
 
     public void clearCache() {
-        currentVersionCache = -2;
+        currentVersionCache = 0;
         tableCountCache = 0;
     }
 

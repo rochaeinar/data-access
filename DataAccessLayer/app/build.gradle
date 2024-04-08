@@ -1,13 +1,18 @@
 apply plugin: 'com.android.application'
 
+// Load keystore
+def keystorePropertiesFile = rootProject.file("keystore.properties");
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
 android {
     compileSdkVersion 33
     defaultConfig {
         applicationId "com.erc.dataaccesslayer"
-        minSdkVersion 14
+        minSdkVersion 19
         targetSdkVersion 33
-        versionCode 7
-        versionName "1.0.7"
+        versionCode 8
+        versionName "1.0.8"
     }
     buildTypes {
         release {
@@ -15,6 +20,17 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+//    signingConfigs {
+//        debug {
+//            storeFile file(keystoreProperties['storeFile'])
+//            keyAlias keystoreProperties['keyAlias']
+//            keyPassword keystoreProperties['storePassword']
+//            storePassword keystoreProperties['keyPassword']
+//        }
+//        release {
+//            storeFile file(keystoreProperties['storeFile'])
+//        }
+//    }
     namespace 'com.erc.dataaccesslayer'
 }
 

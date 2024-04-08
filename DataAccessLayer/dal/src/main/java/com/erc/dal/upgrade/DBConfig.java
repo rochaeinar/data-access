@@ -90,4 +90,13 @@ public class DBConfig {
     public void setPackageFilter(String packageFilter) {
         this.packageFilter = packageFilter;
     }
+
+    public void clearCache() {
+        currentVersionCache = 0;
+        tableCountCache = 0;
+    }
+
+    public String getFullDatabaseName() {
+        return getUrl() + "/" + getDataBaseName();
+    }
 }

@@ -16,16 +16,21 @@ public class DB {
 
     public DB(Context context) {
         this.dbConfig = new DBConfig(context, null, 1, null);
-        dbOperations = DBOperations.getInstance();
-        SQLiteDatabaseManager.openReadOnly(this.dbConfig);
+        dbOperations = new DBOperations(dbConfig);
+        dbOperations.initialize();
+    }
+
+    public void initialize() {
+        dbOperations.initialize();
     }
 
     public DB(DBConfig dbConfig) {
         this.dbConfig = dbConfig;
-        dbOperations = DBOperations.getInstance();
+        dbOperations = new DBOperations(dbConfig);
+        dbOperations.initialize();
     }
 
-    public synchronized Entity save(Entity entity) {
+    public Entity save(Entity entity) {
         return dbOperations.save(entity, this.dbConfig);
     }
 
@@ -41,16 +46,15 @@ public class DB {
         return dbOperations.calculate(classType, aggregationOperator, this.dbConfig, options);
     }
 
-    public synchronized boolean remove(Class classType, Object id) {
+    public boolean remove(Class classType, Object id) {
         return dbOperations.remove(classType, id, this.dbConfig);
     }
 
-    public synchronized boolean execSQL(String sql) {
+    public boolean execSQL(String sql) {
         return dbOperations.execSQL(sql, this.dbConfig);
     }
 
-    public synchronized Cursor rawQuery(String sql) {
+    public Cursor rawQuery(String sql) {
         return dbOperations.rawQuery(sql, this.dbConfig);
     }
-
 }

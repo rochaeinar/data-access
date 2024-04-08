@@ -12,6 +12,7 @@ public class DBs {
     private HashMap<String, DB> dbsMap;
 
     private static DBs dbs = null;
+
     public static DBs getInstance() {
 
         if (dbs == null) {
@@ -22,7 +23,7 @@ public class DBs {
     }
 
     public DB getDB(DBConfig dbConfig) {
-        String fullDatabaseName = getFullDatabaseName(dbConfig);
+        String fullDatabaseName = dbConfig.getFullDatabaseName();
         if (!dbsMap.containsKey(fullDatabaseName)) {
             dbsMap.put(fullDatabaseName, new DB(dbConfig));
         }
@@ -33,7 +34,4 @@ public class DBs {
         dbsMap = new HashMap<>();
     }
 
-    private static String getFullDatabaseName(DBConfig dbConfig) {
-        return dbConfig.getUrl() + "/" + dbConfig.getDataBaseName();
-    }
 }

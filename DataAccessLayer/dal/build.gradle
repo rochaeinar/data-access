@@ -3,10 +3,10 @@ apply plugin: 'com.android.library'
 android {
     compileSdkVersion 33
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion 19
         targetSdkVersion 33
-        versionCode 26
-        versionName "1.0.26"
+        versionCode 31
+        versionName "1.0.31"
     }
     buildTypes {
         release {
@@ -14,10 +14,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    lintOptions {
+    namespace 'com.erc.dal'
+    lint {
         abortOnError false
     }
-    namespace 'com.erc.dal'
 }
 
 dependencies {

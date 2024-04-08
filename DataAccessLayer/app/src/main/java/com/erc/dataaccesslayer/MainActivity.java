@@ -1,5 +1,6 @@
 package com.erc.dataaccesslayer;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -101,13 +102,21 @@ public class MainActivity extends Activity {
 
         measurement("Upgrade external start");
         //Upgrade external DB example
-        dbConfig = new DBConfig(getApplicationContext(), "external.db", 1, Util.getAppPath(getApplicationContext()));
+        dbConfig = new DBConfig(getApplicationContext(), "external.db", 1, Util.getAppPath(getApplicationContext()) + "test");
         dbConfig.setOnUpgradeListener(new UpgradeExample());
         DB externalDb = new DB(dbConfig);
         externalDb.getAll(SETTINGS.class);
         measurement("Upgrade external end");
         showTableStructure(externalDb, "SETTINGS");
+        externalDb.save(new SETTINGS());
 
+        Log.w("External Upgrade existing db");
+        dbConfig = new DBConfig(getApplicationContext(), "external.db", (int) (Math.random() * 1000000), Util.getAppPath(getApplicationContext()) + "test");
+        dbConfig.setOnUpgradeListener(new UpgradeExample());
+        externalDb = new DB(dbConfig);
+        externalDb.getAll(SETTINGS_UPGRADE.class);
+        //externalDb.save(new SETTINGS());
+        showTableStructure(externalDb, "SETTINGS");
 
         Log.w("DB_TIME endTime: " + (System.nanoTime() - startTime));
     }
@@ -126,10 +135,16 @@ public class MainActivity extends Activity {
         startTime = currentTime;
     }
 
+    @SuppressLint("Range")
     private void showTableStructure(DB db, String tableName) {
         Cursor cursor = db.rawQuery("PRAGMA table_info(" + tableName + ");");
         while (cursor != null && cursor.moveToNext()) {
-            Log.w(cursor.getString(cursor.getColumnIndex("name")));
+            if (cursor.getColumnIndex("name") >= 0) {
+                Log.w(cursor.getString(cursor.getColumnIndex("name")));
+            }
+        }
+        if (cursor != null && !cursor.isClosed()) {
+            cursor.close();
         }
     }
 

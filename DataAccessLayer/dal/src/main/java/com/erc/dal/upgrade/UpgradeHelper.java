@@ -7,24 +7,24 @@ import com.erc.dal.SQLiteDatabaseManager;
 
 public class UpgradeHelper {
 
-    public static void verifyUpgrade(DBConfig dbConfig, SQLiteDatabase db) {
+    public void verifyUpgrade(DBConfig dbConfig, SQLiteDatabase db, SQLiteDatabaseManager sqLiteDatabaseManager) {
         if (dbConfig.getUpgradeListener() != null) {
-            int currentVersion = UpgradeHelper.getCurrentVersion(db, dbConfig);
+            int currentVersion = getCurrentVersion(db, dbConfig);
 
             if (dbConfig.getVersion() != currentVersion) {
                 if (db.isReadOnly()) {
-                    SQLiteDatabaseManager.open(dbConfig);
+                    db = sqLiteDatabaseManager.open(dbConfig, db);
                 } else {
-                    UpgradeHelper.createMetadataStructure(db);
+                    createMetadataStructure(db);
                     dbConfig.getUpgradeListener().onUpgrade(db, currentVersion, dbConfig.getVersion());
-                    UpgradeHelper.updateVersion(db, dbConfig.getVersion());
+                    updateVersion(db, dbConfig.getVersion());
                 }
             }
             dbConfig.setCurrentVersionCache(dbConfig.getVersion());
         }
     }
 
-    private static int getCurrentVersion(SQLiteDatabase db, DBConfig dbConfig) {
+    private int getCurrentVersion(SQLiteDatabase db, DBConfig dbConfig) {
 
         if (dbConfig.getCurrentVersionCache() != 0) {
             return dbConfig.getCurrentVersionCache();
@@ -34,7 +34,9 @@ public class UpgradeHelper {
         Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='METADATA';", null);
         if (cursor != null && cursor.moveToNext()) {
             tableExist = cursor.getLong(0) > 0;
-            cursor.close();
+            if (!cursor.isClosed()) {
+                cursor.close();
+            }
         }
 
         if (tableExist) {
@@ -49,16 +51,18 @@ public class UpgradeHelper {
         return -1;
     }
 
-    private static void createMetadataStructure(SQLiteDatabase db) {
+    private void createMetadataStructure(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS METADATA (ID INTEGER, NAME TEXT, VALUE TEXT)");
     }
 
-    private static void updateVersion(SQLiteDatabase db, int version) {
+    private void updateVersion(SQLiteDatabase db, int version) {
         Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM METADATA", null);
         long count = 0;
         if (cursor != null && cursor.moveToNext()) {
             count = cursor.getLong(0);
-            cursor.close();
+            if (!cursor.isClosed()) {
+                cursor.close();
+            }
         }
 
         if (count == 0) {

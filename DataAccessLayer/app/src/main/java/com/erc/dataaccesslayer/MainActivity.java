@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.erc.dal.Aggregation;
 import com.erc.dal.DB;
 import com.erc.dal.Log;
 import com.erc.dal.Options;
@@ -25,24 +24,24 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
 
-        Marcador t = new Marcador();
-        t.id = 7;
+        Marcador marker = new Marcador();
+        marker.id = 7;
         DB db = new DB(getApplicationContext());
         measurement("save");
-        db.save(t);
+        db.save(marker);
         measurement("save end");
 
-        Marcador m2 = db.getById(Marcador.class, 7);
+        Marcador marker2 = db.getById(Marcador.class, 7);
         measurement("getById end");
-        if (m2 != null) {
-            Log.w(m2.toString());
+        if (marker2 != null) {
+            Log.w("GET BY ID: " + marker2.toString());
         }
 
         measurement("getAll start");
         ArrayList<Marcador> entities = db.getAll(Marcador.class);
         measurement("getAll end");
         for (Marcador entity : entities) {
-            Log.w(entity.toString());
+            Log.w("GET ALL: " + entity.toString());
         }
 
         Options options = new Options();
@@ -57,9 +56,19 @@ public class MainActivity extends Activity {
         measurement("getAll options start");
         entities = db.getAll(Marcador.class, options);
         measurement("getAll options end");
-        for (Marcador entity : entities) {
-            Log.w(entity.toString());
-        }
+        showEntities(entities, "GET ALL Options: ");
+
+        //Testing offset
+        marker2.id = 8;
+        db.save(marker2);
+        marker2.id = 9;
+        db.save(marker2);
+        options = new Options();
+        options.limit(1);
+        options.offset(2);
+        entities = db.getAll(Marcador.class, options);
+        showEntities(entities, "OFFSET TEST: ");
+
 
         /*Log.i("count: " + db.calculate(Marcador.class, Aggregation.count()) + "");
 
@@ -103,10 +112,16 @@ public class MainActivity extends Activity {
         Log.w("DB_TIME endTime: " + (System.nanoTime() - startTime));
     }
 
+    private static void showEntities(ArrayList<Marcador> entities, String label) {
+        for (Marcador entity : entities) {
+            Log.w(label + entity.toString());
+        }
+    }
+
     private void measurement(String tag) {
         long currentTime = System.nanoTime();
         if (startTime != 0) {
-            Log.w("DB_TIME " + tag + ": " + java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(currentTime - startTime));
+            Log.i("DB_TIME " + tag + ": " + java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(currentTime - startTime));
         }
         startTime = currentTime;
     }

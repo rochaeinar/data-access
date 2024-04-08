@@ -11,6 +11,7 @@ public class Options {
 
     private String orderBy;
     private String limit;
+    private String offset;
     private boolean ascending;
     private boolean distinct;
     private ArrayList<Sentence> expresions;
@@ -91,6 +92,10 @@ public class Options {
         this.limit = limit + "";
     }
 
+    public void offset(int offset) {
+        this.offset = offset + "";
+    }
+
     public String getSql(Class entityClass, String selectAllSQL, Aggregation... aggregation) {
         this.entityClass = entityClass;
         tableName = QueryBuilder.geTableName(entityClass);
@@ -117,6 +122,9 @@ public class Options {
         }
         sb.append(getOrderBy());
         sb.append(getLimit());
+        if (getLimit().length() > 0) {
+            sb.append(getOffset());
+        }
 
         return sb.toString();
     }
@@ -179,6 +187,13 @@ public class Options {
         String res = "";
         if (!Util.isNullOrEmpty(limit))
             res = Constant.LIMIT + limit;
+        return res;
+    }
+
+    private String getOffset() {
+        String res = "";
+        if (!Util.isNullOrEmpty(offset))
+            res = Constant.OFFSET + offset;
         return res;
     }
 

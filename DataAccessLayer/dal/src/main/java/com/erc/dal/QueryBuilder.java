@@ -3,6 +3,7 @@ package com.erc.dal;
 import android.text.TextUtils;
 
 import com.erc.dal.upgrade.DBConfig;
+import com.erc.dal.util.StringUtil;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -95,7 +96,8 @@ public class QueryBuilder {
                     if (field.isAnnotationPresent(com.erc.dal.Field.class)) {
                         fields.add(ReflectionHelper.getDataBaseNameOfField(field));
                         if (HelperDataType.hasCuotes(field.getType())) {
-                            values.add(Constant.VALUE_QUOTES.replaceFirst(Constant.VALUE, Util.getValueFromField(field, entity)));
+                            String namedValue = StringUtil.replaceLiteral(Constant.VALUE_QUOTES, Constant.VALUE, Util.getValueFromField(field, entity));
+                            values.add(namedValue);
                         } else {
                             values.add(Util.getValueFromField(field, entity));
                         }
@@ -118,11 +120,13 @@ public class QueryBuilder {
                 if (field.isAnnotationPresent(com.erc.dal.Field.class)) {
                     String name = ReflectionHelper.getDataBaseNameOfField(field);
                     if (HelperDataType.hasCuotes(field.getType())) {
-                        pairs.add(Constant.PAIR_QUOTE.replaceFirst(Constant.FIELD, name).
-                                replaceFirst(Constant.VALUE, Util.getValueFromField(field, entity)));
+                        String namedValue = StringUtil.replaceLiteral(Constant.PAIR_QUOTE, Constant.FIELD, name);
+                        namedValue = StringUtil.replaceLiteral(namedValue, Constant.VALUE, Util.getValueFromField(field, entity));
+                        pairs.add(namedValue);
                     } else {
-                        pairs.add(Constant.PAIR.replaceFirst(Constant.FIELD, name).
-                                replaceFirst(Constant.VALUE, Util.getValueFromField(field, entity)));
+                        String namedValue = StringUtil.replaceLiteral(Constant.PAIR, Constant.FIELD, name);
+                        namedValue = StringUtil.replaceLiteral(namedValue, Constant.VALUE, Util.getValueFromField(field, entity));
+                        pairs.add(namedValue);
                     }
                 }
             }
@@ -184,8 +188,9 @@ public class QueryBuilder {
             try {
                 Class entity = dbConfig.getContext().getClassLoader().loadClass(className);
                 if (entity.isAnnotationPresent(type)) {
-                    sb.append(Constant.CREATE.replaceFirst(Constant.TABLE, geTableName(entity)).
-                            replaceFirst(Constant.FIELDS, getPairsToCreate(entity)));
+                    String namedValue = StringUtil.replaceLiteral(Constant.CREATE, Constant.TABLE, geTableName(entity));
+                    namedValue = StringUtil.replaceLiteral(namedValue, Constant.FIELDS, getPairsToCreate(entity));
+                    sb.append(namedValue);
                 }
             } catch (ClassNotFoundException e) {
                 Log.e("Error findSubClasses.ClassNotFoundException", e);
@@ -198,7 +203,7 @@ public class QueryBuilder {
     public static String getAllQuery(Class entity) {
         String res = "";
         try {
-            res = Constant.SELECT_FROM.replaceFirst("%t", geTableName(entity));
+            res = StringUtil.replaceLiteral(Constant.SELECT_FROM, "%t", geTableName(entity));
         } catch (Exception e) {
             Log.e("Error getAllQuery()", e);
         }
@@ -215,7 +220,7 @@ public class QueryBuilder {
                 sb.append(pair.toString());
                 sb.append(Constant.SEMICOLON);
                 String table = geTableName(classType);
-                return sb.toString().replaceAll(Constant.TABLE, table);
+                return StringUtil.replaceLiteral(sb.toString(), Constant.TABLE, table);
             }
         } catch (Exception e) {
             Log.e("Error getQuery()", e);
@@ -228,9 +233,9 @@ public class QueryBuilder {
         try {
             Pair pair = getPrimaryKey(entity, id);
             if (pair != null) {
-                sb.append(Constant.DELETE.replaceFirst(Constant.KEYS, pair.toString()));
+                sb.append(StringUtil.replaceLiteral(Constant.DELETE, Constant.KEYS, pair.toString()));
                 String table = geTableName(entity);
-                return sb.toString().replaceAll(Constant.TABLE, table);
+                return StringUtil.replaceLiteral(sb.toString(), Constant.TABLE, table);
             }
         } catch (Exception e) {
             Log.e("Error getQueryRemove()", e);
@@ -242,8 +247,9 @@ public class QueryBuilder {
         StringBuffer sb = new StringBuffer();
         try {
             NameValue namesValues = getNamesValues(entity);
-            sb.append(Constant.INSERT.replaceFirst(Constant.FIELDS, namesValues.getName().toString()).
-                    replaceFirst(Constant.VALUES, namesValues.getValue().toString()));
+            String namedValue = StringUtil.replaceLiteral(Constant.INSERT, Constant.FIELDS, namesValues.getName().toString());
+            namedValue = StringUtil.replaceLiteral(namedValue, Constant.VALUES, namesValues.getValue().toString());
+            sb.append(namedValue);
         } catch (Exception e) {
             Log.e("Error getQueryInsert()", e);
         }
@@ -256,14 +262,15 @@ public class QueryBuilder {
         try {
             Pair pair = getPrimaryKey(entity);
             if (pair != null) {
-                sb.append(Constant.UPDATE.replaceFirst(Constant.PAIRS, getPairs(entity)).
-                        replaceFirst(Constant.KEYS, pair.toString()));
+                String namedValue = StringUtil.replaceLiteral(Constant.UPDATE, Constant.PAIRS, getPairs(entity));
+                namedValue = StringUtil.replaceLiteral(namedValue, Constant.KEYS, pair.toString());
+                sb.append(namedValue);
             }
         } catch (Exception e) {
             Log.e("Error getQueryUpdate()", e);
         }
         String table = geTableName(entity.getClass());
-        return sb.toString().replaceAll(Constant.TABLE, table);
+        return StringUtil.replaceLiteral(sb.toString(), Constant.TABLE, table);
     }
 
 

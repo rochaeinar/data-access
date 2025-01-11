@@ -27,6 +27,7 @@ public class MainActivity extends Activity {
 
         Marcador marker = new Marcador();
         marker.id = 7;
+        marker.description = "\\test";
         DB db = new DB(getApplicationContext());
         measurement("save");
         db.save(marker);

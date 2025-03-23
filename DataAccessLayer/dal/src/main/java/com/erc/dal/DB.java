@@ -30,8 +30,8 @@ public class DB {
         dbOperations.initialize();
     }
 
-    public Entity save(Entity entity) {
-        return dbOperations.save(entity, this.dbConfig);
+    public <T> T save(Entity entity, Options... options) {
+        return dbOperations.save(entity, this.dbConfig, options);
     }
 
     public <T> T getById(Class classType, Object id) {

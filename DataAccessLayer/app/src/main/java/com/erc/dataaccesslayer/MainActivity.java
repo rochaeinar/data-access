@@ -64,12 +64,22 @@ public class MainActivity extends Activity {
         marker2.id = 8;
         db.save(marker2);
         marker2.id = 9;
+        marker2.language = 123;
         db.save(marker2);
         options = new Options();
         options.limit(1);
         options.offset(2);
         entities = db.getAll(Marcador.class, options);
         showEntities(entities, "OFFSET TEST: ");
+
+        //testing Save with Options
+        marker2.description = "Updated with Options";
+        Options options1 = new Options();
+        options1.and("language", 123);
+        marker2 = db.save(marker2, options1);
+        if(marker2.id != 9){
+            Log.e("Unable to save with Options", null);
+        }
 
 
         /*Log.i("count: " + db.calculate(Marcador.class, Aggregation.count()) + "");

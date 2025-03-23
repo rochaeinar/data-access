@@ -257,15 +257,20 @@ public class QueryBuilder {
         return sb.toString().replaceAll(Constant.TABLE, table);
     }
 
-    public static String getQueryUpdate(Entity entity) {
+    public static String getQueryUpdate(Entity entity, Options... options) {
         StringBuffer sb = new StringBuffer();
         try {
+            String namedValue = StringUtil.replaceLiteral(Constant.UPDATE, Constant.PAIRS, getPairs(entity));
             Pair pair = getPrimaryKey(entity);
-            if (pair != null) {
-                String namedValue = StringUtil.replaceLiteral(Constant.UPDATE, Constant.PAIRS, getPairs(entity));
+
+            if (pair != null && options.length == 0) {
                 namedValue = StringUtil.replaceLiteral(namedValue, Constant.KEYS, pair.toString());
-                sb.append(namedValue);
+            } else if (options.length > 0) {
+                namedValue = StringUtil.replaceLiteral(namedValue, Constant.KEYS, options[0].getExpressions());
             }
+            sb.append(namedValue);
+
+
         } catch (Exception e) {
             Log.e("Error getQueryUpdate()", e);
         }

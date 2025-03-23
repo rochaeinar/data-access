@@ -28,22 +28,32 @@ class DBOperations {
         closeDb(db);
     }
 
-    public synchronized Entity save(Entity entity, DBConfig dbConfig) {
+    public synchronized <T> T save(Entity entity, DBConfig dbConfig, Options... options) {
         String sql = "";
         Pair pair = QueryBuilder.getPrimaryKey(entity);
-        if (pair != null) {
-            Entity entityToUpdate = getById(entity.getClass(), Long.parseLong(pair.getValue()), dbConfig);
+
+        if (pair != null || options.length > 0) {
+            Entity entityToUpdate = null;
+            if (options.length == 0) {
+                entityToUpdate = getById(entity.getClass(), Long.parseLong(pair.getValue()), dbConfig);
+            }else {
+                Options options_ = options[0];
+                ArrayList<Object> entitiesToUpdate = getAll(entity.getClass(), dbConfig, options_);
+                if(entitiesToUpdate.size() > 0){
+                    entityToUpdate = (Entity)entitiesToUpdate.get(0);
+                }
+            }
             if (entityToUpdate == null) {
                 if (pair.getValue().toString().isEmpty() || pair.getValue().toString().equals("0")) {
                     QueryBuilder.setID(entity, this, dbConfig);
                 }
                 sql = QueryBuilder.getQueryInsert(entity);
             } else {
-                sql = QueryBuilder.getQueryUpdate(entity);
+                sql = QueryBuilder.getQueryUpdate(entity, options);
             }
             execSQL(sql, dbConfig);
             closeDb(db);
-            return entity;
+            return (T)entity;
         } else {
             return null;
         }

@@ -6,11 +6,11 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
-    compileSdkVersion 34
+    compileSdkVersion 35
     defaultConfig {
         applicationId "com.erc.dataaccesslayer"
         minSdkVersion 19
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode 8
         versionName "1.0.8"
     }

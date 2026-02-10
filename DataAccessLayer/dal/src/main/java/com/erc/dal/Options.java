@@ -141,7 +141,7 @@ public class Options {
                     }
                     try {
                         if (expresion.getLeft() instanceof FieldParam) {
-                            Class type = entityClass.getField(expresion.getLeft().getString()).getType();
+                            Class type = ReflectionHelper.getFieldByName(entityClass, expresion.getLeft().getString()).getType();
                             sb.append(expresion.getExpresionString(tableName, HelperDataType.hasCuotes(type)));
                         } else {
                             Function function = (Function) expresion.getLeft();

@@ -14,6 +14,7 @@ public class ReflectionHelper {
             java.lang.reflect.Field[] allFields = entity.getClass().getDeclaredFields();
             for (java.lang.reflect.Field field : allFields) {
                 if (field.isAnnotationPresent(com.erc.dal.Field.class)) {
+                    field.setAccessible(true);
                     fields.add(field);
                 }
             }
@@ -50,12 +51,27 @@ public class ReflectionHelper {
         return res;
     }
 
+    public static java.lang.reflect.Field getFieldByName(Class entityClass, String fieldName) throws NoSuchFieldException {
+        Class currentClass = entityClass;
+        while (currentClass != null) {
+            try {
+                java.lang.reflect.Field field = currentClass.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                return field;
+            } catch (NoSuchFieldException e) {
+                currentClass = currentClass.getSuperclass();
+            }
+        }
+        throw new NoSuchFieldException(fieldName);
+    }
+
     public static String getFieldNameFromDBName(Class entityClass, String fieldNameDB) {
         String res = "";
         try {
             java.lang.reflect.Field[] allFields = entityClass.getDeclaredFields();
             for (java.lang.reflect.Field field : allFields) {
                 if (field.isAnnotationPresent(com.erc.dal.Field.class)) {
+                    field.setAccessible(true);
                     if (getDataBaseNameOfField(field).equals(fieldNameDB)) {
                         res = field.getName();
                         break;

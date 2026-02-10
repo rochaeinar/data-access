@@ -9,6 +9,7 @@ public class Util {
     public static String getValueFromField(java.lang.reflect.Field field, Object entity) {
         String res = "";
         try {
+            field.setAccessible(true);
             Object value = field.get(entity);
             if (value != null) {
                 res = getValueFromObject(value);

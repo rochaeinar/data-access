@@ -53,7 +53,7 @@ public class Aggregation {
             try {
                 if (!getField().equals("*")) {
                     String fieldName = ReflectionHelper.getFieldNameFromDBName(entityClass, getField());
-                    java.lang.reflect.Field field = entityClass.getField(fieldName);
+                    java.lang.reflect.Field field = ReflectionHelper.getFieldByName(entityClass, fieldName);
                 }
                 res = getOperator().replace(Constant.VALUE, getField());
             } catch (NoSuchFieldException e) {

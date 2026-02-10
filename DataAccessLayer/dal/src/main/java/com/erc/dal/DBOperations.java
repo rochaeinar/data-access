@@ -222,6 +222,7 @@ class DBOperations {
                     break;
                 } while (true);
 
+                field.setAccessible(true);
                 field.set(entity, value);
             }
         } catch (Exception e) {

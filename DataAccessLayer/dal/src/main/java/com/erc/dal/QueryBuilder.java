@@ -18,6 +18,7 @@ public class QueryBuilder {
             Field[] fields = entity.getClass().getDeclaredFields();
             for (Field field : fields) {
                 if (field.isAnnotationPresent(PrimaryKey.class)) {
+                    field.setAccessible(true);
                     long id = generateId(entity, dbOperations, dbConfig);
                     if (field.getType().equals(String.class)) {
                         field.set(entity, Util.fillRight(Long.toString(id), Constant.LENGTH_TEXT_ID, '0'));
@@ -45,6 +46,7 @@ public class QueryBuilder {
             Field[] fields = entity.getClass().getDeclaredFields();
             for (Field field : fields) {
                 if (field.isAnnotationPresent(PrimaryKey.class)) {
+                    field.setAccessible(true);
                     pair = new Pair();
                     pair.setName(ReflectionHelper.getDataBaseNameOfField(field));
                     pair.setType(field.getType());
@@ -69,6 +71,7 @@ public class QueryBuilder {
             Field[] fields = classType.getDeclaredFields();
             for (Field field : fields) {
                 if (field.isAnnotationPresent(PrimaryKey.class)) {
+                    field.setAccessible(true);
                     pair = new Pair();
                     pair.setName(ReflectionHelper.getDataBaseNameOfField(field));
                     pair.setType(field.getType());
@@ -94,6 +97,7 @@ public class QueryBuilder {
                 Field[] allFields = entity.getClass().getDeclaredFields();
                 for (Field field : allFields) {
                     if (field.isAnnotationPresent(com.erc.dal.Field.class)) {
+                        field.setAccessible(true);
                         fields.add(ReflectionHelper.getDataBaseNameOfField(field));
                         if (HelperDataType.hasCuotes(field.getType())) {
                             String namedValue = StringUtil.replaceLiteral(Constant.VALUE_QUOTES, Constant.VALUE, Util.getValueFromField(field, entity));
@@ -118,6 +122,7 @@ public class QueryBuilder {
             Field[] allFields = entity.getClass().getDeclaredFields();
             for (Field field : allFields) {
                 if (field.isAnnotationPresent(com.erc.dal.Field.class)) {
+                    field.setAccessible(true);
                     String name = ReflectionHelper.getDataBaseNameOfField(field);
                     if (HelperDataType.hasCuotes(field.getType())) {
                         String namedValue = StringUtil.replaceLiteral(Constant.PAIR_QUOTE, Constant.FIELD, name);
@@ -142,6 +147,7 @@ public class QueryBuilder {
             Field[] allFields = entity.getDeclaredFields();
             for (Field field : allFields) {
                 if (field.isAnnotationPresent(com.erc.dal.Field.class)) {
+                    field.setAccessible(true);
                     pairs.add(ReflectionHelper.getDataBaseNameOfField(field) + " " + HelperDataType.getDataBaseType(field.getType()));
                 }
             }

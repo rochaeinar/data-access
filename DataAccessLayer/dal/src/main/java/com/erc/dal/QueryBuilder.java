@@ -28,8 +28,10 @@ public class QueryBuilder {
                     break;
                 }
             }
+        } catch (DALException e) {
+            throw e;
         } catch (Exception e) {
-            Log.e("Error: setID", e);
+            throw new DALException("Failed to set ID on " + entity.getClass().getName(), e);
         }
     }
 
@@ -40,78 +42,69 @@ public class QueryBuilder {
     }
 
     public static Pair getPrimaryKey(Entity entity) {
-        boolean existPrimaryKey = false;
-        Pair pair = null;
         try {
             Field[] fields = entity.getClass().getDeclaredFields();
             for (Field field : fields) {
                 if (field.isAnnotationPresent(PrimaryKey.class)) {
                     field.setAccessible(true);
-                    pair = new Pair();
+                    Pair pair = new Pair();
                     pair.setName(ReflectionHelper.getDataBaseNameOfField(field));
                     pair.setType(field.getType());
                     pair.setValue(Util.getValueFromField(field, entity));
-                    existPrimaryKey = true;
-                    break;
+                    return pair;
                 }
             }
-            if (!existPrimaryKey) {
-                Log.e("No Primary Key defined, please add an annotation '@PrimaryKey' on one field inside :" + entity.getClass().getName(), null);
-            }
         } catch (Exception e) {
-            Log.e("Error: getPrimaryKey", e);
+            throw new DALException("Failed to get primary key from " + entity.getClass().getName(), e);
         }
-        return pair;
+        return null;
     }
 
     public static Pair getPrimaryKey(Class classType, Object id) {
-        Pair pair = null;
-        boolean existPrimaryKey = false;
         try {
             Field[] fields = classType.getDeclaredFields();
             for (Field field : fields) {
                 if (field.isAnnotationPresent(PrimaryKey.class)) {
                     field.setAccessible(true);
-                    pair = new Pair();
+                    Pair pair = new Pair();
                     pair.setName(ReflectionHelper.getDataBaseNameOfField(field));
                     pair.setType(field.getType());
                     pair.setValue(id.toString());
-                    existPrimaryKey = true;
-                    break;
+                    return pair;
                 }
             }
-            if (!existPrimaryKey) {
-                Log.e("No Primary Key defined, please add an annotation '@PrimaryKey' on one field inside of " + classType.getName(), null);
-            }
         } catch (Exception e) {
-            Log.e("Error: getPrimaryKey2", e);
+            throw new DALException("Failed to get primary key from " + classType.getName(), e);
         }
-        return pair;
+        throw new DALException("No @PrimaryKey annotation found on " + classType.getName());
     }
 
     private static NameValue getNamesValues(Entity entity) {
+        if (entity == null) {
+            throw new DALException("Cannot build INSERT values: entity is null");
+        }
         ArrayList<String> fields = new ArrayList<String>();
         ArrayList<String> values = new ArrayList<String>();
         try {
-            if (entity != null) {
-                Field[] allFields = entity.getClass().getDeclaredFields();
-                for (Field field : allFields) {
-                    if (field.isAnnotationPresent(com.erc.dal.Field.class)) {
-                        field.setAccessible(true);
-                        fields.add(ReflectionHelper.getDataBaseNameOfField(field));
-                        if (HelperDataType.hasCuotes(field.getType())) {
-                            String namedValue = StringUtil.replaceLiteral(Constant.VALUE_QUOTES, Constant.VALUE, Util.getValueFromField(field, entity));
-                            values.add(namedValue);
-                        } else {
-                            values.add(Util.getValueFromField(field, entity));
-                        }
+            Field[] allFields = entity.getClass().getDeclaredFields();
+            for (Field field : allFields) {
+                if (field.isAnnotationPresent(com.erc.dal.Field.class)) {
+                    field.setAccessible(true);
+                    fields.add(ReflectionHelper.getDataBaseNameOfField(field));
+                    if (HelperDataType.hasCuotes(field.getType())) {
+                        String raw = Util.getValueFromField(field, entity);
+                        String escaped = raw != null ? raw.replace("'", "''") : "";
+                        String namedValue = StringUtil.replaceLiteral(Constant.VALUE_QUOTES, Constant.VALUE, escaped);
+                        values.add(namedValue);
+                    } else {
+                        values.add(Util.getValueFromField(field, entity));
                     }
                 }
-            } else {
-                Log.e("Error: getNamesValues, entity is null", null);
             }
+        } catch (DALException e) {
+            throw e;
         } catch (Exception e) {
-            Log.e("Error: getNamesValues", e);
+            throw new DALException("Failed to build INSERT values for " + entity.getClass().getName(), e);
         }
         return new NameValue(TextUtils.join(",", fields), TextUtils.join(",", values));
     }
@@ -125,8 +118,10 @@ public class QueryBuilder {
                     field.setAccessible(true);
                     String name = ReflectionHelper.getDataBaseNameOfField(field);
                     if (HelperDataType.hasCuotes(field.getType())) {
+                        String raw = Util.getValueFromField(field, entity);
+                        String escaped = raw != null ? raw.replace("'", "''") : "";
                         String namedValue = StringUtil.replaceLiteral(Constant.PAIR_QUOTE, Constant.FIELD, name);
-                        namedValue = StringUtil.replaceLiteral(namedValue, Constant.VALUE, Util.getValueFromField(field, entity));
+                        namedValue = StringUtil.replaceLiteral(namedValue, Constant.VALUE, escaped);
                         pairs.add(namedValue);
                     } else {
                         String namedValue = StringUtil.replaceLiteral(Constant.PAIR, Constant.FIELD, name);
@@ -135,8 +130,10 @@ public class QueryBuilder {
                     }
                 }
             }
+        } catch (DALException e) {
+            throw e;
         } catch (Exception e) {
-            Log.e("Error: getPairs", e);
+            throw new DALException("Failed to build UPDATE pairs for " + entity.getClass().getName(), e);
         }
         return TextUtils.join(",", pairs);
     }
@@ -151,33 +148,23 @@ public class QueryBuilder {
                     pairs.add(ReflectionHelper.getDataBaseNameOfField(field) + " " + HelperDataType.getDataBaseType(field.getType()));
                 }
             }
+        } catch (DALException e) {
+            throw e;
         } catch (Exception e) {
-            Log.e("Error: getPairs", e);
+            throw new DALException("Failed to build CREATE TABLE columns for " + entity.getName(), e);
         }
         return TextUtils.join(",", pairs);
     }
 
     public static String geTableName(Class entity) {
-        String res = "";
-        try {
-            Table table = (Table) entity.getAnnotation(Table.class);
-            if (table != null) {
-                if (table.name() == null) {
-                    res = entity.getSimpleName();
-                } else {
-                    if (table.name().isEmpty()) {
-                        res = entity.getSimpleName();
-                    } else {
-                        res = table.name();
-                    }
-                }
-            } else {
-                Log.e("Make sure that exist the annotation '@Table' on " + entity.getName(), null);
-            }
-        } catch (Exception e) {
-            Log.e("Error: geTableName", e);
+        Table table = (Table) entity.getAnnotation(Table.class);
+        if (table == null) {
+            throw new DALException("Missing @Table annotation on " + entity.getName());
         }
-        return res;
+        if (table.name() == null || table.name().isEmpty()) {
+            return entity.getSimpleName();
+        }
+        return table.name();
     }
 
     public static String getCreateQuery(DBConfig dbConfig, Class type) {
@@ -207,81 +194,42 @@ public class QueryBuilder {
     }
 
     public static String getAllQuery(Class entity) {
-        String res = "";
-        try {
-            res = StringUtil.replaceLiteral(Constant.SELECT_FROM, "%t", geTableName(entity));
-        } catch (Exception e) {
-            Log.e("Error getAllQuery()", e);
-        }
-        return res;
+        return StringUtil.replaceLiteral(Constant.SELECT_FROM, "%t", geTableName(entity));
     }
 
     public static String getQuery(Class classType, Object id) {
+        Pair pair = getPrimaryKey(classType, id);
         StringBuffer sb = new StringBuffer();
-        try {
-            Pair pair = getPrimaryKey(classType, id);
-            if (pair != null) {
-                sb.append(Constant.SELECT_FROM);
-                sb.append(Constant.WHERE);
-                sb.append(pair.toString());
-                sb.append(Constant.SEMICOLON);
-                String table = geTableName(classType);
-                return StringUtil.replaceLiteral(sb.toString(), Constant.TABLE, table);
-            }
-        } catch (Exception e) {
-            Log.e("Error getQuery()", e);
-        }
-        return null;
+        sb.append(Constant.SELECT_FROM);
+        sb.append(Constant.WHERE);
+        sb.append(pair.toString());
+        sb.append(Constant.SEMICOLON);
+        return StringUtil.replaceLiteral(sb.toString(), Constant.TABLE, geTableName(classType));
     }
 
     public static String getQueryRemove(Class entity, Object id) {
+        Pair pair = getPrimaryKey(entity, id);
         StringBuffer sb = new StringBuffer();
-        try {
-            Pair pair = getPrimaryKey(entity, id);
-            if (pair != null) {
-                sb.append(StringUtil.replaceLiteral(Constant.DELETE, Constant.KEYS, pair.toString()));
-                String table = geTableName(entity);
-                return StringUtil.replaceLiteral(sb.toString(), Constant.TABLE, table);
-            }
-        } catch (Exception e) {
-            Log.e("Error getQueryRemove()", e);
-        }
-        return null;
+        sb.append(StringUtil.replaceLiteral(Constant.DELETE, Constant.KEYS, pair.toString()));
+        return StringUtil.replaceLiteral(sb.toString(), Constant.TABLE, geTableName(entity));
     }
 
     public static String getQueryInsert(Entity entity) {
-        StringBuffer sb = new StringBuffer();
-        try {
-            NameValue namesValues = getNamesValues(entity);
-            String namedValue = StringUtil.replaceLiteral(Constant.INSERT, Constant.FIELDS, namesValues.getName().toString());
-            namedValue = StringUtil.replaceLiteral(namedValue, Constant.VALUES, namesValues.getValue().toString());
-            sb.append(namedValue);
-        } catch (Exception e) {
-            Log.e("Error getQueryInsert()", e);
-        }
-        String table = geTableName(entity.getClass());
-        return sb.toString().replaceAll(Constant.TABLE, table);
+        NameValue namesValues = getNamesValues(entity);
+        String namedValue = StringUtil.replaceLiteral(Constant.INSERT, Constant.FIELDS, namesValues.getName().toString());
+        namedValue = StringUtil.replaceLiteral(namedValue, Constant.VALUES, namesValues.getValue().toString());
+        return namedValue.replaceAll(Constant.TABLE, geTableName(entity.getClass()));
     }
 
     public static String getQueryUpdate(Entity entity, Options... options) {
-        StringBuffer sb = new StringBuffer();
-        try {
-            String namedValue = StringUtil.replaceLiteral(Constant.UPDATE, Constant.PAIRS, getPairs(entity));
-            Pair pair = getPrimaryKey(entity);
-
-            if (pair != null && options.length == 0) {
-                namedValue = StringUtil.replaceLiteral(namedValue, Constant.KEYS, pair.toString());
-            } else if (options.length > 0) {
-                namedValue = StringUtil.replaceLiteral(namedValue, Constant.KEYS, options[0].getExpressions());
-            }
-            sb.append(namedValue);
-
-
-        } catch (Exception e) {
-            Log.e("Error getQueryUpdate()", e);
+        String namedValue = StringUtil.replaceLiteral(Constant.UPDATE, Constant.PAIRS, getPairs(entity));
+        Pair pair = getPrimaryKey(entity);
+        if (pair != null && options.length == 0) {
+            namedValue = StringUtil.replaceLiteral(namedValue, Constant.KEYS, pair.toString());
+        } else if (options.length > 0) {
+            namedValue = StringUtil.replaceLiteral(namedValue, Constant.KEYS, options[0].getExpressions());
         }
-        String table = geTableName(entity.getClass());
-        return StringUtil.replaceLiteral(sb.toString(), Constant.TABLE, table);
+        return StringUtil.replaceLiteral(namedValue, Constant.TABLE, geTableName(entity.getClass()));
     }
 
 

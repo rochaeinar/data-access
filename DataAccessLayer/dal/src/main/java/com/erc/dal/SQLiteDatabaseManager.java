@@ -40,8 +40,10 @@ public class SQLiteDatabaseManager extends SQLiteOpenHelper {
                 return open(dbConfig, db);
             }
             upgradeHelper.verifyUpgrade(dbConfig, db, this);
+        } catch (DALException e) {
+            throw e;
         } catch (Exception e) {
-            Log.e("Opening database", e);
+            throw new DALException("Failed to open database: " + dbConfig.getFullDatabaseName(), e);
         }
         return db;
     }
@@ -70,8 +72,10 @@ public class SQLiteDatabaseManager extends SQLiteOpenHelper {
                 return openReadOnly(dbConfig, db);
             }
             upgradeHelper.verifyUpgrade(dbConfig, db, this);
+        } catch (DALException e) {
+            throw e;
         } catch (Exception e) {
-            Log.e("Opening database", e);
+            throw new DALException("Failed to open database (read-only): " + dbConfig.getFullDatabaseName(), e);
         }
         return db;
     }

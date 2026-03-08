@@ -32,53 +32,51 @@ class DBOperations {
         String sql = "";
         Pair pair = QueryBuilder.getPrimaryKey(entity);
 
-        if (pair != null || options.length > 0) {
-            Entity entityToUpdate = null;
-            if (options.length == 0) {
-                entityToUpdate = getById(entity.getClass(), Long.parseLong(pair.getValue()), dbConfig);
-            }else {
-                Options options_ = options[0];
-                ArrayList<Object> entitiesToUpdate = getAll(entity.getClass(), dbConfig, options_);
-                if(entitiesToUpdate.size() > 0){
-                    entityToUpdate = (Entity)entitiesToUpdate.get(0);
-                }
-            }
-            if (entityToUpdate == null) {
-                if (pair.getValue().toString().isEmpty() || pair.getValue().toString().equals("0")) {
-                    QueryBuilder.setID(entity, this, dbConfig);
-                }
-                sql = QueryBuilder.getQueryInsert(entity);
-            } else {
-                sql = QueryBuilder.getQueryUpdate(entity, options);
-            }
-            execSQL(sql, dbConfig);
-            closeDb(db);
-            return (T)entity;
-        } else {
-            return null;
+        if (pair == null && options.length == 0) {
+            throw new DALException("Cannot save " + entity.getClass().getName() + ": no @PrimaryKey defined and no Options provided");
         }
+
+        Entity entityToUpdate = null;
+        if (options.length == 0) {
+            entityToUpdate = getById(entity.getClass(), Long.parseLong(pair.getValue()), dbConfig);
+        } else {
+            Options options_ = options[0];
+            ArrayList<Object> entitiesToUpdate = getAll(entity.getClass(), dbConfig, options_);
+            if (entitiesToUpdate.size() > 0) {
+                entityToUpdate = (Entity) entitiesToUpdate.get(0);
+            }
+        }
+        if (entityToUpdate == null) {
+            if (pair != null && (pair.getValue().toString().isEmpty() || pair.getValue().toString().equals("0"))) {
+                QueryBuilder.setID(entity, this, dbConfig);
+            }
+            sql = QueryBuilder.getQueryInsert(entity);
+        } else {
+            sql = QueryBuilder.getQueryUpdate(entity, options);
+        }
+        execSQL(sql, dbConfig);
+        closeDb(db);
+        return (T) entity;
     }
 
     public synchronized <T> T getById(Class classType, Object id, DBConfig dbConfig) {
         T entity = null;
         String sql = QueryBuilder.getQuery(classType, id);
-        if (!Util.isNullOrEmpty(sql)) {
-            Cursor cursor = rawQuery(sql, dbConfig);
-            if (cursor != null && cursor.moveToNext()) {
-                try {
-                    entity = (T) ReflectionHelper.getInstance(classType, new Object[]{}, new Class[]{});
-                    ArrayList<java.lang.reflect.Field> fields = ReflectionHelper.getFields(entity);
-                    fillFields(fields, cursor, entity);
-                } catch (Exception e) {
-                    Log.e("Fail to fill getById", e);
-                }
+        Cursor cursor = rawQuery(sql, dbConfig);
+        if (cursor != null && cursor.moveToNext()) {
+            try {
+                entity = (T) ReflectionHelper.getInstance(classType, new Object[]{}, new Class[]{});
+                ArrayList<java.lang.reflect.Field> fields = ReflectionHelper.getFields(entity);
+                fillFields(fields, cursor, entity);
+            } catch (DALException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new DALException("Failed to map result for " + classType.getName(), e);
             }
-            closeCursor(cursor);
-            closeDb(db);
-            return entity;
-        } else {
-            return null;
         }
+        closeCursor(cursor);
+        closeDb(db);
+        return entity;
     }
 
     public synchronized <T> ArrayList<T> getAll(Class classType, DBConfig dbConfig, Options... options) {
@@ -93,8 +91,10 @@ class DBOperations {
                 ArrayList<java.lang.reflect.Field> fields = ReflectionHelper.getFields(entity);
                 fillFields(fields, cursor, entity);
                 entities.add((T) entity);
+            } catch (DALException e) {
+                throw e;
             } catch (Exception e) {
-                Log.e("Fail to fill getAll", e);
+                throw new DALException("Failed to map result for " + classType.getName(), e);
             }
         }
         closeCursor(cursor);
@@ -103,79 +103,61 @@ class DBOperations {
     }
 
     public synchronized <T> T calculate(Class classType, Aggregation aggregationOperator, DBConfig dbConfig, Options... options) {
-        T res = null;
-        try {
-            if (aggregationOperator != null) {
-                Options options_ = options.length == 0 ? new Options() : options[0];
-                String selectAll = QueryBuilder.getAllQuery(classType);
-                selectAll = options_.getSql(classType, selectAll, aggregationOperator) + Constant.SEMICOLON;
-                Cursor cursor = rawQuery(selectAll, dbConfig);
-                if (cursor != null && cursor.moveToNext()) {
-
-                    if (cursor.getType(0) == Cursor.FIELD_TYPE_FLOAT) {
-                        res = (T) new Float(cursor.getFloat(0));
-                    }
-
-                    if (cursor.getType(0) == Cursor.FIELD_TYPE_INTEGER) {
-                        res = (T) new Long(cursor.getLong(0));
-                    }
-                }
-                closeCursor(cursor);
-                closeDb(db);
-            } else {
-                Log.w("null aggregation Operator on Entity.Calculate");
-            }
-        } catch (Exception e) {
-            Log.e("fail to calculate:" + aggregationOperator.getOperator(), e);
+        if (aggregationOperator == null) {
+            throw new DALException("Aggregation operator cannot be null");
         }
+        T res = null;
+        Options options_ = options.length == 0 ? new Options() : options[0];
+        String selectAll = QueryBuilder.getAllQuery(classType);
+        selectAll = options_.getSql(classType, selectAll, aggregationOperator) + Constant.SEMICOLON;
+        Cursor cursor = rawQuery(selectAll, dbConfig);
+        if (cursor != null && cursor.moveToNext()) {
+            if (cursor.getType(0) == Cursor.FIELD_TYPE_FLOAT) {
+                res = (T) new Float(cursor.getFloat(0));
+            }
+            if (cursor.getType(0) == Cursor.FIELD_TYPE_INTEGER) {
+                res = (T) new Long(cursor.getLong(0));
+            }
+        }
+        closeCursor(cursor);
+        closeDb(db);
         return res;
     }
 
     public synchronized boolean remove(Class classType, Object id, DBConfig dbConfig) {
         String sql = QueryBuilder.getQueryRemove(classType, id);
-        if (!Util.isNullOrEmpty(sql)) {
-            boolean success = execSQL(sql, dbConfig);
-            closeDb(db);
-            return success;
-        }
-        return false;
+        boolean success = execSQL(sql, dbConfig);
+        closeDb(db);
+        return success;
     }
 
     public Cursor rawQuery(String sql, DBConfig dbConfig) {
         db = sqLiteDatabaseManager.openReadOnly(dbConfig, db);
-        Cursor cursor = null;
         try {
-            cursor = db.rawQuery(sql, null);
+            return db.rawQuery(sql, null);
         } catch (Exception e) {
-            Log.e("Failed to execute raw SQL", e);
-        } finally {
+            throw new DALException("Failed to execute raw SQL: " + sql, e);
         }
-        return cursor;
     }
 
     public boolean execSQL(String sql, DBConfig dbConfig) {
         db = sqLiteDatabaseManager.open(dbConfig, db);
-        boolean res = false;
         try {
             db.execSQL(sql);
-            //Log.i(sql);
-            res = true;
+            return true;
         } catch (Exception e) {
-            Log.e("Failed to execute SQL", e);
-        } finally {
+            throw new DALException("Failed to execute SQL: " + sql, e);
         }
-        return res;
     }
 
-    private void fillFields(ArrayList<java.lang.reflect.Field> fields, Cursor cursor, Object entity) throws IllegalAccessException {
+    private void fillFields(ArrayList<java.lang.reflect.Field> fields, Cursor cursor, Object entity) throws Exception {
         Type type;
-        String currentField = "null";
-        try {
-            for (java.lang.reflect.Field field : fields) {
-                Object value = null;
-                type = field.getType();
-                currentField = field.getName();
+        for (java.lang.reflect.Field field : fields) {
+            Object value = null;
+            type = field.getType();
+            String currentField = field.getName();
 
+            try {
                 do {
                     if (ReflectionHelper.getDataBaseNameOfField(field).equals("rowid")) {
                         value = -1;
@@ -224,9 +206,9 @@ class DBOperations {
 
                 field.setAccessible(true);
                 field.set(entity, value);
+            } catch (Exception e) {
+                throw new DALException("Failed to fill field \"" + currentField + "\" in " + entity.getClass().getName(), e);
             }
-        } catch (Exception e) {
-            Log.e("Failed to fill Field: \"" + currentField + "\" in " + entity.getClass().getName(), e);
         }
     }
 

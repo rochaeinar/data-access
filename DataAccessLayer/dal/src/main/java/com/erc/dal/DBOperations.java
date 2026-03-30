@@ -71,8 +71,9 @@ class DBOperations {
             }
         } catch (Exception e) {
             throw new DALException("Failed to save " + entity.getClass().getName() + " to " + tableName, e);
+        } finally {
+            closeDb(db);
         }
-        closeDb(db);
         return (T) entity;
     }
 
@@ -128,19 +129,20 @@ class DBOperations {
         T entity = null;
         String sql = QueryBuilder.getQuery(classType, id);
         Cursor cursor = rawQuery(sql, dbConfig);
-        if (cursor != null && cursor.moveToNext()) {
-            try {
+        try {
+            if (cursor != null && cursor.moveToNext()) {
                 entity = (T) ReflectionHelper.getInstance(classType, new Object[]{}, new Class[]{});
                 ArrayList<java.lang.reflect.Field> fields = ReflectionHelper.getFields(entity);
                 fillFields(fields, cursor, entity);
-            } catch (DALException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new DALException("Failed to map result for " + classType.getName(), e);
             }
+        } catch (DALException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DALException("Failed to map result for " + classType.getName(), e);
+        } finally {
+            closeCursor(cursor);
+            closeDb(db);
         }
-        closeCursor(cursor);
-        closeDb(db);
         return entity;
     }
 
@@ -150,20 +152,21 @@ class DBOperations {
         String selectAll = QueryBuilder.getAllQuery(classType);
         selectAll = options_.getSql(classType, selectAll) + Constant.SEMICOLON;
         Cursor cursor = rawQuery(selectAll, dbConfig);
-        while (cursor != null && cursor.moveToNext()) {
-            try {
+        try {
+            while (cursor != null && cursor.moveToNext()) {
                 Object entity = ReflectionHelper.getInstance(classType, new Object[]{}, new Class[]{});
                 ArrayList<java.lang.reflect.Field> fields = ReflectionHelper.getFields(entity);
                 fillFields(fields, cursor, entity);
                 entities.add((T) entity);
-            } catch (DALException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new DALException("Failed to map result for " + classType.getName(), e);
             }
+        } catch (DALException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DALException("Failed to map result for " + classType.getName(), e);
+        } finally {
+            closeCursor(cursor);
+            closeDb(db);
         }
-        closeCursor(cursor);
-        closeDb(db);
         return entities;
     }
 
@@ -176,16 +179,19 @@ class DBOperations {
         String selectAll = QueryBuilder.getAllQuery(classType);
         selectAll = options_.getSql(classType, selectAll, aggregationOperator) + Constant.SEMICOLON;
         Cursor cursor = rawQuery(selectAll, dbConfig);
-        if (cursor != null && cursor.moveToNext()) {
-            if (cursor.getType(0) == Cursor.FIELD_TYPE_FLOAT) {
-                res = (T) new Float(cursor.getFloat(0));
+        try {
+            if (cursor != null && cursor.moveToNext()) {
+                if (cursor.getType(0) == Cursor.FIELD_TYPE_FLOAT) {
+                    res = (T) new Float(cursor.getFloat(0));
+                }
+                if (cursor.getType(0) == Cursor.FIELD_TYPE_INTEGER) {
+                    res = (T) new Long(cursor.getLong(0));
+                }
             }
-            if (cursor.getType(0) == Cursor.FIELD_TYPE_INTEGER) {
-                res = (T) new Long(cursor.getLong(0));
-            }
+        } finally {
+            closeCursor(cursor);
+            closeDb(db);
         }
-        closeCursor(cursor);
-        closeDb(db);
         return res;
     }
 
@@ -201,6 +207,7 @@ class DBOperations {
         try {
             return db.rawQuery(sql, null);
         } catch (Exception e) {
+            closeDb(db);
             throw new DALException("Failed to execute raw SQL: " + sql, e);
         }
     }
@@ -211,6 +218,7 @@ class DBOperations {
             db.execSQL(sql);
             return true;
         } catch (Exception e) {
+            closeDb(db);
             throw new DALException("Failed to execute SQL: " + sql, e);
         }
     }
@@ -286,7 +294,6 @@ class DBOperations {
     private void closeDb(SQLiteDatabase db) {
         if (db != null && db.isOpen()) {
             db.close();
-            db.releaseReference();
         }
     }
 }

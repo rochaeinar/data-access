@@ -32,19 +32,26 @@ public class UpgradeHelper {
 
         boolean tableExist = false;
         Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='METADATA';", null);
-        if (cursor != null && cursor.moveToNext()) {
-            tableExist = cursor.getLong(0) > 0;
-            if (!cursor.isClosed()) {
+        try {
+            if (cursor != null && cursor.moveToNext()) {
+                tableExist = cursor.getLong(0) > 0;
+            }
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
                 cursor.close();
             }
         }
 
         if (tableExist) {
             cursor = db.rawQuery("SELECT * FROM METADATA", null);
-            if (cursor != null && cursor.moveToNext()) {
-                int version = Integer.parseInt(cursor.getString(cursor.getColumnIndex("VALUE")));
-                cursor.close();
-                return version;
+            try {
+                if (cursor != null && cursor.moveToNext()) {
+                    return Integer.parseInt(cursor.getString(cursor.getColumnIndex("VALUE")));
+                }
+            } finally {
+                if (cursor != null && !cursor.isClosed()) {
+                    cursor.close();
+                }
             }
         }
 
@@ -58,9 +65,12 @@ public class UpgradeHelper {
     private void updateVersion(SQLiteDatabase db, int version) {
         Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM METADATA", null);
         long count = 0;
-        if (cursor != null && cursor.moveToNext()) {
-            count = cursor.getLong(0);
-            if (!cursor.isClosed()) {
+        try {
+            if (cursor != null && cursor.moveToNext()) {
+                count = cursor.getLong(0);
+            }
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
                 cursor.close();
             }
         }

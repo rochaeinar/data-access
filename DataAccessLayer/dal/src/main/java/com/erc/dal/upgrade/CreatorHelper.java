@@ -35,9 +35,12 @@ public class CreatorHelper {
             numberOfTables = dbConfig.getTableCountCache();
         } else {
             Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND NAME <> 'android_metadata';", null);
-            if (cursor != null && cursor.moveToNext()) {
-                numberOfTables = cursor.getLong(0);
-                if (!cursor.isClosed()) {
+            try {
+                if (cursor != null && cursor.moveToNext()) {
+                    numberOfTables = cursor.getLong(0);
+                }
+            } finally {
+                if (cursor != null && !cursor.isClosed()) {
                     cursor.close();
                 }
             }

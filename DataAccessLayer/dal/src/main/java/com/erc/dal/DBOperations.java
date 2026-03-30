@@ -1,5 +1,6 @@
 package com.erc.dal;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -29,7 +30,6 @@ class DBOperations {
     }
 
     public synchronized <T> T save(Entity entity, DBConfig dbConfig, Options... options) {
-        String sql = "";
         Pair pair = QueryBuilder.getPrimaryKey(entity);
 
         if (pair == null && options.length == 0) {
@@ -46,17 +46,82 @@ class DBOperations {
                 entityToUpdate = (Entity) entitiesToUpdate.get(0);
             }
         }
+
+        String tableName = QueryBuilder.geTableName(entity.getClass());
+
         if (entityToUpdate == null) {
             if (pair != null && (pair.getValue().toString().isEmpty() || pair.getValue().toString().equals("0"))) {
                 QueryBuilder.setID(entity, this, dbConfig);
             }
-            sql = QueryBuilder.getQueryInsert(entity);
-        } else {
-            sql = QueryBuilder.getQueryUpdate(entity, options);
         }
-        execSQL(sql, dbConfig);
+
+        ContentValues cv = buildContentValues(entity);
+        db = sqLiteDatabaseManager.open(dbConfig, db);
+        try {
+            if (entityToUpdate == null) {
+                db.insertOrThrow(tableName, null, cv);
+            } else {
+                if (options.length == 0) {
+                    db.update(tableName, cv, pair.getName() + " = ?", new String[]{pair.getValue()});
+                } else {
+                    // Options-based update: fall back to raw SQL for complex WHERE expressions
+                    String sql = QueryBuilder.getQueryUpdate(entity, options);
+                    db.execSQL(sql);
+                }
+            }
+        } catch (Exception e) {
+            throw new DALException("Failed to save " + entity.getClass().getName() + " to " + tableName, e);
+        }
         closeDb(db);
         return (T) entity;
+    }
+
+    private ContentValues buildContentValues(Entity entity) {
+        ContentValues cv = new ContentValues();
+        try {
+            java.lang.reflect.Field[] allFields = entity.getClass().getDeclaredFields();
+            for (java.lang.reflect.Field field : allFields) {
+                if (field.isAnnotationPresent(com.erc.dal.Field.class)) {
+                    field.setAccessible(true);
+                    String columnName = ReflectionHelper.getDataBaseNameOfField(field);
+                    Object value = field.get(entity);
+                    if (value == null) {
+                        cv.putNull(columnName);
+                        continue;
+                    }
+                    Class<?> type = field.getType();
+                    if (type.equals(String.class)) {
+                        cv.put(columnName, (String) value);
+                    } else if (type.equals(int.class) || type.equals(Integer.class)) {
+                        cv.put(columnName, (Integer) value);
+                    } else if (type.equals(long.class) || type.equals(Long.class)) {
+                        cv.put(columnName, (Long) value);
+                    } else if (type.equals(short.class) || type.equals(Short.class)) {
+                        cv.put(columnName, (Short) value);
+                    } else if (type.equals(boolean.class) || type.equals(Boolean.class)) {
+                        cv.put(columnName, ((Boolean) value) ? 1 : 0);
+                    } else if (type.equals(double.class) || type.equals(Double.class)) {
+                        cv.put(columnName, (Double) value);
+                    } else if (type.equals(float.class) || type.equals(Float.class)) {
+                        cv.put(columnName, (Float) value);
+                    } else if (type.equals(Date.class)) {
+                        cv.put(columnName, HelperDate.getDateWithFormat((Date) value, HelperDate.ISO_FORMAT));
+                    } else if (type.equals(char.class) || type.equals(Character.class)) {
+                        char c = (Character) value;
+                        cv.put(columnName, c == '\0' ? "" : String.valueOf(c));
+                    } else if (type.equals(byte[].class)) {
+                        cv.put(columnName, (byte[]) value);
+                    } else {
+                        cv.put(columnName, value.toString());
+                    }
+                }
+            }
+        } catch (DALException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DALException("Failed to build ContentValues for " + entity.getClass().getName(), e);
+        }
+        return cv;
     }
 
     public synchronized <T> T getById(Class classType, Object id, DBConfig dbConfig) {

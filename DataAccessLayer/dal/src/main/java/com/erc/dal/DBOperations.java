@@ -77,6 +77,66 @@ class DBOperations {
         return (T) entity;
     }
 
+    /**
+     * Bulk INSERT of many entities inside a single transaction.
+     * <p>
+     * This is the high-throughput path for write-heavy scenarios (e.g. logging thousands
+     * of rows). Instead of opening/closing the database and committing once per row, it:
+     * <ul>
+     *     <li>pre-computes the next primary-key value with a single MAX() query,</li>
+     *     <li>opens the database once,</li>
+     *     <li>inserts every row inside one transaction (one fsync instead of N),</li>
+     *     <li>closes the database once.</li>
+     * </ul>
+     * All entities are assumed to be of the same type and are treated as new rows
+     * (INSERT). Rows that already carry a non-empty primary key keep it; rows with an
+     * empty/zero key get sequential ids assigned from the pre-computed value.
+     */
+    public synchronized void saveAll(java.util.List<? extends Entity> entities, DBConfig dbConfig) {
+        if (entities == null || entities.isEmpty()) {
+            return;
+        }
+
+        Entity sample = entities.get(0);
+        String tableName = QueryBuilder.geTableName(sample.getClass());
+
+        // Pre-compute the next id ONCE (single query) instead of once per row.
+        Pair pk = QueryBuilder.getPrimaryKey(sample);
+        long nextId = 0;
+        boolean generateIds = pk != null;
+        if (generateIds) {
+            Long maxId = calculate(sample.getClass(), Aggregation.max(pk.getName()), dbConfig);
+            nextId = (maxId == null ? 0 : maxId) + 1;
+        }
+
+        db = sqLiteDatabaseManager.open(dbConfig, db);
+        try {
+            db.beginTransaction();
+            try {
+                for (Entity entity : entities) {
+                    if (generateIds) {
+                        Pair current = QueryBuilder.getPrimaryKey(entity);
+                        String value = current == null || current.getValue() == null ? "" : current.getValue();
+                        if (value.isEmpty() || value.equals("0")) {
+                            QueryBuilder.setPrimaryKeyValue(entity, nextId++);
+                        }
+                    }
+                    ContentValues cv = buildContentValues(entity);
+                    db.insertOrThrow(tableName, null, cv);
+                }
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+            }
+        } catch (DALException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DALException("Failed to save batch of " + entities.size() + " into " + tableName, e);
+        } finally {
+            closeDb(db);
+        }
+    }
+
     private ContentValues buildContentValues(Entity entity) {
         ContentValues cv = new ContentValues();
         try {

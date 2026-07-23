@@ -34,6 +34,14 @@ public class DB {
         return dbOperations.save(entity, this.dbConfig, options);
     }
 
+    /**
+     * Bulk INSERT of many entities inside a single transaction. Much faster than calling
+     * {@link #save(Entity, Options...)} in a loop when writing many rows at once.
+     */
+    public void saveAll(java.util.List<? extends Entity> entities) {
+        dbOperations.saveAll(entities, this.dbConfig);
+    }
+
     public <T> T getById(Class classType, Object id) {
         return dbOperations.getById(classType, id, this.dbConfig);
     }

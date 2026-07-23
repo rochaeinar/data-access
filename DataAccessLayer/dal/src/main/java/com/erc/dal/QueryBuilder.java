@@ -14,12 +14,20 @@ import java.util.ArrayList;
 public class QueryBuilder {
 
     public static void setID(Entity entity, DBOperations dbOperations, DBConfig dbConfig) {
+        setPrimaryKeyValue(entity, generateId(entity, dbOperations, dbConfig));
+    }
+
+    /**
+     * Assigns an explicit value to the entity's {@link PrimaryKey} field. Used by batch
+     * inserts where the next id is pre-computed once for the whole batch instead of
+     * running a MAX() query per row.
+     */
+    public static void setPrimaryKeyValue(Entity entity, long id) {
         try {
             Field[] fields = entity.getClass().getDeclaredFields();
             for (Field field : fields) {
                 if (field.isAnnotationPresent(PrimaryKey.class)) {
                     field.setAccessible(true);
-                    long id = generateId(entity, dbOperations, dbConfig);
                     if (field.getType().equals(String.class)) {
                         field.set(entity, Util.fillRight(Long.toString(id), Constant.LENGTH_TEXT_ID, '0'));
                     } else {

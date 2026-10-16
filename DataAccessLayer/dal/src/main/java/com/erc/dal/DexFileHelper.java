@@ -8,9 +8,15 @@ import dalvik.system.DexFile;
 
 class DexFileHelper {
     public static ArrayList<String> findClassesStartWith(String prefix) {
+        return findClassesStartWith(prefix, DexFileHelper.class.getClassLoader());
+    }
+
+    /** @param appClassLoader the app's, used when this thread has none (a background worker). */
+    public static ArrayList<String> findClassesStartWith(String prefix, ClassLoader appClassLoader) {
         ArrayList<String> result = new ArrayList<>();
         try {
-            ArrayList<DexFile> dexFiles = findAllDexFiles(Thread.currentThread().getContextClassLoader());
+            ArrayList<DexFile> dexFiles = findAllDexFiles(
+                    CreateStatements.classLoader(Thread.currentThread().getContextClassLoader(), appClassLoader));
             for (DexFile dexFile : dexFiles) {
                 if (dexFile != null) {
                     Enumeration<String> classNames = dexFile.entries();

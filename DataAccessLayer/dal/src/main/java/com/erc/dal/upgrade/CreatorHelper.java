@@ -19,7 +19,12 @@ public class CreatorHelper {
             } else {
                 String sql = QueryBuilder.getCreateQuery(dbConfig, Table.class);
                 Log.w("Database created: " + sql);
-                for (String sqlCreate : sql.split(";")) {
+                java.util.List<String> statements = com.erc.dal.CreateStatements.split(sql);
+                if (statements.isEmpty()) {
+                    throw new com.erc.dal.DALException("No tables to create in " + dbConfig.getDataBaseName()
+                            + ": no @Table class found in " + dbConfig.getContext().getPackageName());
+                }
+                for (String sqlCreate : statements) {
                     db.execSQL(sqlCreate);
                 }
             }

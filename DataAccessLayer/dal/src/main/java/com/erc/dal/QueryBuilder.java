@@ -184,7 +184,8 @@ public class QueryBuilder {
             packageName = dbConfig.getPackageFilter();
         }
 
-        ArrayList<String> findClassesStartWith = DexFileHelper.findClassesStartWith(packageName);
+        ArrayList<String> findClassesStartWith = DexFileHelper.findClassesStartWith(packageName,
+                dbConfig.getContext().getClassLoader());
         for (String className : findClassesStartWith) {
             try {
                 Class entity = dbConfig.getContext().getClassLoader().loadClass(className);
